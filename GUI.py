@@ -5,6 +5,7 @@ from tkinter import Canvas
 
 LARGE_FONT = ("Verdana", 12)
 
+
 class DatabaseGUI(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -177,8 +178,3 @@ class StartPage(tk.Frame):
         button3.pack()
         button4.pack()
         button5.pack()
-
-
-if __name__ == "__main__":
-    root = DatabaseGUI()
-    root.mainloop()
