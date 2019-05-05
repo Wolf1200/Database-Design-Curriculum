@@ -13,33 +13,32 @@ def insertcurriculum():
 
 
 # Function to insert course
-def insertcourse():
+def insertcourse(array):
     # Define variables
     global mycursor
     global mydb
 
-    # Get values from user
-    name = input("Enter the name of the course: ")
-    subcode = input("Enter the subcode: ")
-    coursenum = input("Enter the course number: ")
-    credithrs = input("Enter the credit hours of the course: ")
-    desc = input("Enter the course description: ")
-
-    # Verify no null values in key
-    while subcode == "" or coursenum == "":
-        if subcode == "":
-            print("You need to enter a value for subcode.")
-            subcode = input("Enter the subcode: ")
-        if coursenum == "":
-            print("You need to enter a value for subcode.")
-            coursenum = input("Enter the course number: ")
+    # # Get values from user
+    # name = input("Enter the name of the course: ")
+    # subcode = input("Enter the subcode: ")
+    # coursenum = input("Enter the course number: ")
+    # credithrs = input("Enter the credit hours of the course: ")
+    # desc = input("Enter the course description: ")
+    #
+    # # Verify no null values in key
+    # while subcode == "" or coursenum == "":
+    #     if subcode == "":
+    #         print("You need to enter a value for subcode.")
+    #         subcode = input("Enter the subcode: ")
+    #     if coursenum == "":
+    #         print("You need to enter a value for subcode.")
+    #         coursenum = input("Enter the course number: ")
 
     # Insert tuple
     query = "insert into course (name, subCode, courseNumber, creditHours, description) values (%s, %s, %s, %s, %s)"
-    val = (name, subcode, coursenum, credithrs, desc)
 
     # Execute query and commit to db
-    mycursor.execute(query, val)
+    mycursor.execute(query, array)
     mydb.commit()
 
 
@@ -57,24 +56,23 @@ def getcourse(subcode, coursenum):
 
 
 # Function to insert topics
-def inserttopics():
+def inserttopics(array):
     # Define variables
     global mycursor
     global mydb
 
-    # Get input from user
-    topicid = input("Enter the topic id: ")
-    name = input("Enter the topic name: ")
-
-    # Ensure id is not null
-    while topicid == "":
-        print("You need to enter in a topic id.")
-        topicid = input("Enter the topic id: ")
+    # # Get input from user
+    # topicid = input("Enter the topic id: ")
+    # name = input("Enter the topic name: ")
+    #
+    # # Ensure id is not null
+    # while topicid == "":
+    #     print("You need to enter in a topic id.")
+    #     topicid = input("Enter the topic id: ")
 
     query = "insert into topics (id, name) values (%s, %s)"
-    val = (topicid, name)
 
-    mycursor.execute(query, val)
+    mycursor.execute(query, array)
     mydb.commit()
 
 
@@ -92,31 +90,30 @@ def gettopic(topicid):
 
 
 # Function to insert goal
-def insertgoal():
+def insertgoal(array):
     # Define variables
     global mydb
     global mycursor
 
-    # Get values from user
-    goalid = input("Enter the goal id: ")
-    desc = input("Enter the goal description: ")
-    curr = input("Enter the goal curriculum: ")
-
-    # Verify key won't be null
-    while goalid == ""  or curr == "":
-        if goalid == "":
-            print("You need to enter a goal id.")
-            goalid = input("Enter the goal id: ")
-        if curr == "":
-            print("You need to enter a curriculum.")
-            curr = input("Enter the goal curriculum: ")
+    # # Get values from user
+    # goalid = input("Enter the goal id: ")
+    # desc = input("Enter the goal description: ")
+    # curr = input("Enter the goal curriculum: ")
+    #
+    # # Verify key won't be null
+    # while goalid == ""  or curr == "":
+    #     if goalid == "":
+    #         print("You need to enter a goal id.")
+    #         goalid = input("Enter the goal id: ")
+    #     if curr == "":
+    #         print("You need to enter a curriculum.")
+    #         curr = input("Enter the goal curriculum: ")
 
     # Create query to execute
     query = "insert into goal (id, description, curriculum) values (%s, %s, %s)"
-    val = (goalid, desc, curr)
 
     # Execute query and commit db
-    mycursor.execute(query, val)
+    mycursor.execute(query, array)
     mydb.commit()
 
 
@@ -133,7 +130,235 @@ def getgoal(goalid, curr):
     return mycursor.fetchall()
 
 
-# Function to insert 
+# Function to insert goal/grade relationship
+def insertgoalgrade(array):
+    # Define variable
+    global mydb
+    global mycursor
+
+    # # Get user input
+    # semester = input("Enter the semester: ")
+    # year = input("Enter the year (YYYY): ")
+    # secid = input("Enter the section id: ")
+    # subcode = input("Enter the subcode: ")
+    # coursenum = input("Enter the course number: ")
+    # goalid = input("Enter the goal id: ")
+    # goalgrade = input("Enter the goal grade: ")
+    #
+    # # Verify key will not be null
+    # while semester == "" or year == "" or secid == "" or subcode == "" or coursenum == "" or goalid == "":
+    #     if semester == "":
+    #         print("You need to enter a semester.")
+    #         semester = input("Enter the semester: ")
+    #     if year == "":
+    #         print("You need to enter a year.")
+    #         year = input("Enter the year (YYYY): ")
+    #     if secid == "":
+    #         print("You need to enter a section id.")
+    #         secid = input("Enter the section id: ")
+    #     if subcode == "":
+    #         print("You need to enter a subcode.")
+    #         subcode = input("Enter the subcode: ")
+    #     if coursenum == "":
+    #         print("You need to enter a course number.")
+    #         coursenum = input("Enter the course number: ")
+    #     if goalid == "":
+    #         print("You need to enter the goal id.")
+    #         goalid = input("Enter the goal id: ")
+
+    # Define query to insert
+    query = "insert into goalgrades (semester, year, sectionID, subCode, courseNumber, goalID, goalGrade) values " \
+            "(%s, %s, %s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get goal/grade
+def getgoalgrade(semester, year, secid, subcode, coursenum, goalid):
+    # Define variables
+    global mycursor
+    query = "select * from goalgrades where semester='" + semester + "' and year='" + year + "' and sectionID='"\
+            + secid + "' and subCode='" + subcode + "' and courseNumber='" + coursenum + "' and goalID='" + goalid + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+# Function to insert Curriculum/Topics
+def insertcurriculumtopics(array):
+    # Define variables
+    global mydb
+    global mycursor
+
+    query = "insert into curriculumtopics (curriculumName, topicID, level, subjectArea, units) values " \
+            "(%s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get Curriculum/Topics
+def getcurriculumtopics(currname, topicid):
+    # Define variables
+    global mycursor
+    query = "select * from curriculumtopics where curriculumName='" + currname + "' and topicID='" + topicid + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+# Function to insert Course/Topics
+def insertcoursetopics(array):
+    # Define variables
+    global mydb
+    global mycursor
+
+    # Define insert query
+    query = "insert into coursetopics (subCode, courseNumber, curriculumName, topicID, units) values " \
+            "(%s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get Course/Topics
+def getcoursetopics(subcode, coursenum, currname, topicid):
+    # Define variables
+    global mycursor
+    query = "select * from coursetopics where subCode='" + subcode + "' and courseNumber='" + coursenum + "' and " \
+            "curriculumName='" + currname + "' and topicID='" + topicid + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+# Function to insert Course/Goals
+def insertcoursegoals(array):
+    # Define variables
+    global mydb
+    global mycursor
+
+    # Define query to insert
+    query = "insert into coursegoals (curriculumName, subCode, courseNumber, goalID) values (%s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get Course/Goals
+def getcoursegoals(currname, subcode, coursenum, goalid):
+    # Define variables
+    global mycursor
+    query = "select * from coursegoals where curriculumName='" + currname + "' and subCode='" + subcode + "' and " \
+            "courseNumber='" + coursenum + "' and goalID='" + goalid + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+# Function to insert Curriculum/Courses
+def insertcurriculumcourses(array):
+    # Define variables
+    global mydb
+    global mycursor
+
+    # Define query to insert
+    query = "insert into curriculumcourses (curriculumName, subCode, courseNumber, optional) " \
+            "values (%s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get Curriculum/Course
+def getcurriculumcourse(currname, subcode, coursenum):
+    # Define variables
+    global mycursor
+    query = "select * from curriculumcourses where curriculumName='" + currname + "' and subCode='" + subcode + "'" \
+            " and courseNumber='" + coursenum + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+# Function to insert StudentGrades
+def insertstudentgrades(array):
+    # Define variables
+    global mydb
+    global mycursor
+
+    # Define query to insert
+    query = "insert into studentgrades (semester, year, sectionID, subCode, courseNumber, numAP, numA, numAM, numBP," \
+            " numB, numBM, numCP, numC, numCM, numDP, numD, numDM, numF, numW, numI) values " \
+            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get StudentGrades
+def getstudentgrades(semester, year, secid, subcode, coursenum):
+    # Define variables
+    global mycursor
+    query = "select * from studentgrades where semester='" + semester + "' and year='" + year + "' and sectionID='" \
+            + secid + "' and subCode='" + subcode + "' and courseNumber='" + coursenum + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+# Function to insert Course/Sections
+def insertcoursesections(array):
+    # Define variables
+    global mydb
+    global mycursor
+
+    # Define query to insert
+    query = "insert into coursesections (semester, year, sectionID, subCode, courseNumber) values " \
+            "(%s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get Course/Sections
+def getcoursesection(semester, year, secid, subcode, coursenum):
+    # Define variables
+    global mycursor
+    query = "select * from coursesections where semester='" + semester + "' and year='" + year + "' and sectionID='" \
+            + secid + "' and subCode='" + subcode + "' and courseNumber='" + coursenum + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
 
 
 # Function to initialize the database
