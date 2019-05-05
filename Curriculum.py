@@ -418,8 +418,9 @@ def initdatabase():
     mycursor = mydb.cursor()
 
     # If some tables don't exist, create them
-    mycursor.execute("create table IF NOT EXISTS curriculum (name varchar(25) not null, headID bigint, headName varchar, totCredits int, "
-                     "maxUnits int, coverage varchar(25), numGoals int, constraint curriculum_pk primary key (name))")
+    mycursor.execute("create table IF NOT EXISTS curriculum (name varchar(25) not null, headID bigint, headName varchar(25),"
+                     "totCredits int, maxUnits float, coverage varchar(25), numGoals int, "
+                     "constraint curriculum_pk primary key (name))")
 
     mycursor.execute("create table IF NOT EXISTS curriculumTopics (curriculumName varchar(25) not null, topicID int "
                      "not null, level int, subjectArea varchar(25), units float, constraint curriculumTopics_pk "

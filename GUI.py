@@ -41,6 +41,7 @@ class InsertCurriculumPage(tk.Frame):
 
         labelCName = tk.Label(self, text="Name")
         labelCID = tk.Label(self, text="Head ID")
+        labelCHeadName = tk.Label(self, text="Head Name")
         labelCCred = tk.Label(self, text="Total Credits")
         labelmaxCUnits = tk.Label(self, text="Max Units")
         labelCCoverage = tk.Label(self, text="Coverage")
@@ -52,6 +53,7 @@ class InsertCurriculumPage(tk.Frame):
         vcmd = (self.register(self.validateint))
         self.nametext = tk.Entry(self)
         self.headidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.headname = tk.Entry(self)
         self.totcreditstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.maxunitstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.coveragetext = tk.Entry(self)
@@ -63,6 +65,8 @@ class InsertCurriculumPage(tk.Frame):
         self.nametext.pack()
         labelCID.pack()
         self.headidtext.pack()
+        labelCHeadName.pack()
+        self.headname.pack()
         labelCCred.pack()
         self.totcreditstext.pack()
         labelmaxCUnits.pack()
@@ -77,14 +81,22 @@ class InsertCurriculumPage(tk.Frame):
     def insertpressed(self, controller):
         name = self.nametext.get()
         id = self.headidtext.get()
+        headname = self.headname.get()
         totcred = self.totcreditstext.get()
         maxunits = self.maxunitstext.get()
         coverage = self.coveragetext.get()
         numgoals = self.numgoalstext.get()
 
-        if not name or not id or not totcred or not maxunits or not coverage or not numgoals:
+        if not name or not id or not headname or not totcred or not maxunits or not coverage or not numgoals:
             self.errorlabel.pack()
         else:
+            self.nametext.delete(0, 'end')
+            self.headidtext.delete(0, 'end')
+            self.headname.delete(0, 'end')
+            self.totcreditstext.delete(0, 'end')
+            self.maxunitstext.delete(0, 'end')
+            self.coveragetext.delete(0, 'end')
+            self.numgoalstext.delete(0, 'end')
             array = [name, id, totcred, maxunits, coverage, numgoals]
             insertcurriculum(array)
             if self.errorlabel.winfo_ismapped():
