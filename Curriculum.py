@@ -6,10 +6,31 @@ mycursor = ""
 results = ""
 
 
-# Function to enter information about a curriculum and everything involved with it (courses, topics, etc)
-def insertcurriculum():
+# Function to insert curriculum
+def insertcurriculum(array):
+    # Define variables
     global mydb
     global mycursor
+
+    query = "insert into curriculum (name, headID, totCredits, maxUnits, coverage, numGoals) values " \
+            "(%s, %s, %s, %s, %s, %s)"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
+# Function to get curriculum
+def getcorriculum(name):
+    # Define variables
+    global mycursor
+    query = "select * from curriculum where name='" + name + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
 
 
 # Function to insert course
