@@ -52,6 +52,7 @@ def getcurrentcourses():
     ret = mycursor.fetchall()
     return ret
 
+
 # Function to insert course
 def insertcourse(array):
     # Define variables
@@ -401,6 +402,13 @@ def getcoursesection(semester, year, secid, subcode, coursenum):
     return mycursor.fetchall()
 
 
+# Function to return all topics and courses related to a curriculum
+def getallcoursestopics(currname):
+    # Define variables
+    global mycursor
+    query = ("select * from course")
+
+
 # Function to initialize the database
 def initdatabase():
     # Open DB connection
@@ -435,9 +443,9 @@ def initdatabase():
     mycursor.execute("create table IF NOT EXISTS topics (id int not null, name varchar(25), "
                      "constraint topics_pk primary key (id))")
 
-    mycursor.execute("create table IF NOT EXISTS course (name varchar(25), subCode varchar(25) not null, courseNumber "
-                     "int not null, creditHours int, description text, constraint course_pk "
-                     "primary key (subCode, courseNumber))")
+    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null, subCode varchar(25) not null, "
+                     "courseNumber int not null, creditHours int, description text, constraint course_pk "
+                     "primary key (name, subCode, courseNumber))")
 
     mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, subCode varchar(25) "
                      "not null, courseNumber int not null, goalID int not null, "
