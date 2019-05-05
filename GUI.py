@@ -51,11 +51,12 @@ class InsertCurriculumPage(tk.Frame):
                            command=lambda: self.backtostart(controller))
 
         vcmd = (self.register(self.validateint))
+        vcmd2 = (self.register(self.validatefloat))
         self.nametext = tk.Entry(self)
         self.headidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.headname = tk.Entry(self)
         self.totcreditstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.maxunitstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.maxunitstext = tk.Entry(self, validate='all', validatecommand=(vcmd2, '%P'))
         self.coveragetext = tk.Entry(self)
         self.numgoalstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
 
@@ -111,6 +112,16 @@ class InsertCurriculumPage(tk.Frame):
     def validateint(self, P):
         if str.isdigit(P) or P == "":
             return True
+        else:
+            return False
+
+    def validatefloat(self, text, P):
+        if P in '0123456789.':
+            try:
+                float(P)
+                return True
+            except ValueError:
+                return False
         else:
             return False
 
