@@ -471,11 +471,11 @@ def initdatabase():
                      "constraint studentGrades_pk primary key (semester, year, sectionID, subCode, courseNumber))")
 
     mycursor.execute("create table IF NOT EXISTS courseSections (semester varchar(25) not null, year year not null, "
-                     "sectionID int not null, subCode varchar(25) not null, courseNumber int not null, "
+                     "sectionID int not null, courseName varchar(25) not null, "
                      "enrolled int, comment1 text, comment2 text, constraint courseSections_pk primary key "
                      "(semester, year, sectionID, subCode, courseNumber))")
 
     mycursor.execute("create table IF NOT EXISTS goalGrades (semester varchar(25) not null, year year not null, "
-                     "sectionID int not null, subCode varchar(25) not null, courseNumber int not null, goalID int "
+                     "sectionID int not null, courseName varchar(25) not null, goalID int "
                      "not null, goalGrade varchar(25), constraint goalGrades_pk primary key "
-                     "(semester, year, sectionID, subCode, courseNumber, goalID))")
+                     "(semester, year, sectionID, courseName, goalID))")
