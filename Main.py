@@ -1,5 +1,5 @@
 from GUI import DatabaseGUI
-from Curriculum import initdatabase
+from Curriculum import *
 
 if __name__ == "__main__":
     initdatabase()
