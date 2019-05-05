@@ -130,6 +130,7 @@ class SearchCurriculumPage(tk.Frame):
 
         self.labelCName = tk.Label(self)
         self.labelCID = tk.Label(self)
+        self.labelCHeadName = tk.Label(self)
         self.labelCCred = tk.Label(self)
         self.labelmaxCUnits = tk.Label(self)
         self.labelCCoverage = tk.Label(self)
@@ -150,14 +151,16 @@ class SearchCurriculumPage(tk.Frame):
 
         name = info[0]
         headID = info[1]
-        totCredits = info[2]
-        maxUnits = info[3]
-        coverage = info[4]
-        numGoals = info[5]
+        headName = info[2]
+        totCredits = info[3]
+        maxUnits = info[4]
+        coverage = info[5]
+        numGoals = info[6]
 
         if self.labelCName.winfo_ismapped():
             self.labelCName.pack_forget()
             self.labelCID.pack_forget()
+            self.labelCHeadName.pack_forget()
             self.labelCCred.pack_forget()
             self.labelmaxCUnits.pack_forget()
             self.labelCCoverage.pack_forget()
@@ -165,6 +168,7 @@ class SearchCurriculumPage(tk.Frame):
 
         self.labelCName = tk.Label(self, text="Name: " + name)
         self.labelCID = tk.Label(self, text="Head ID: " + str(headID))
+        self.labelCHeadName = tk.Label(self, text="Head Name: " + headName)
         self.labelCCred = tk.Label(self, text="Total Credits: " + str(totCredits))
         self.labelmaxCUnits = tk.Label(self, text="Max Units: " + str(maxUnits))
         self.labelCCoverage = tk.Label(self, text="Coverage: " + coverage)
