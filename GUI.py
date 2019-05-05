@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import Scrollbar
 from tkinter import Canvas
+from Curriculum import *
 
 LARGE_FONT = ("Verdana", 12)
 
@@ -38,15 +39,57 @@ class SearchCurriculumPage(tk.Frame):
         label = tk.Label(self, text="Search Curriculum Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        curriculum = ttk.Combobox(self, values=["Test", "Test2", "Testetc"])
-        curriculum.current(0)
-        button1 = tk.Button(self, text="Search")
-        button2 = tk.Button(self, text="Back to Start Page",
-                            command=lambda: controller.show_frame(StartPage))
+        curriculums = getcurrentcurriculums()
 
-        curriculum.pack(side=tk.TOP)
+        self.labelCName = ""
+        self.labelCID = ""
+        self.labelCCred = ""
+        self.labelmaxCUnits = ""
+        self.labelCCoverage = ""
+        self.labelCNumGoals = ""
+
+        self.curriculum = ttk.Combobox(self, values=curriculums)
+        button1 = tk.Button(self, text="Search", command=lambda: self.getinfo())
+        button2 = tk.Button(self, text="Back to Start Page",
+                            command=lambda: self.gotostartpage(controller))
+
+        self.curriculum.pack(side=tk.TOP)
         button1.pack(side=tk.BOTTOM)
         button2.pack(side=tk.BOTTOM)
+
+    def getinfo(self):
+        info = getcurriculum(self.curriculum.get())
+        info = info[0]
+
+        name = info[0]
+        headID = info[1]
+        totCredits = info[2]
+        maxUnits = info[3]
+        coverage = info[4]
+        numGoals = info[5]
+
+        self.labelCName = tk.Label(self, text="Name: " + name)
+        self.labelCID = tk.Label(self, text="Head ID: " + str(headID))
+        self.labelCCred = tk.Label(self, text="Total Credits: " + str(totCredits))
+        self.labelmaxCUnits = tk.Label(self, text="Max Units: " + str(maxUnits))
+        self.labelCCoverage = tk.Label(self, text="Coverage: " + coverage)
+        self.labelCNumGoals = tk.Label(self, text="Number of Goals: " + str(numGoals))
+
+        self.labelCName.pack()
+        self.labelCID.pack()
+        self.labelCCred.pack()
+        self.labelmaxCUnits.pack()
+        self.labelCCoverage.pack()
+        self.labelCNumGoals.pack()
+
+    def gotostartpage(self, controller):
+        self.labelCName.pack_forget()
+        self.labelCID.pack_forget()
+        self.labelCCred.pack_forget()
+        self.labelmaxCUnits.pack_forget()
+        self.labelCCoverage.pack_forget()
+        self.labelCNumGoals.pack_forget()
+        controller.show_frame(StartPage)
 
 
 class SearchCoursePage(tk.Frame):
@@ -55,15 +98,52 @@ class SearchCoursePage(tk.Frame):
         label = tk.Label(self, text="Search Course Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        course = ttk.Combobox(self, values=["Test", "Test2", "Testetc"])
-        course.current(0)
-        button1 = tk.Button(self, text="Search")
-        button2 = tk.Button(self, text="Back to Start Page",
-                            command=lambda: controller.show_frame(StartPage))
+        self.labelCName = ""
+        self.labelCCode = ""
+        self.labelCNum = ""
+        self.labelCHours = ""
+        self.labelCDesc = ""
 
-        course.pack(side=tk.TOP)
+        courses = getcurrentcourses()
+
+        self.course = ttk.Combobox(self, values=courses[0])
+        button1 = tk.Button(self, text="Search", command=lambda: self.getinfo())
+        button2 = tk.Button(self, text="Back to Start Page",
+                            command=lambda: self.gotostartpage(controller))
+
+        self.course.pack(side=tk.TOP)
         button1.pack(side=tk.BOTTOM)
         button2.pack(side=tk.BOTTOM)
+
+    def getinfo(self):
+        info = getcourse(self.course.get())
+        info = info[0]
+
+        name = info[0]
+        code = info[1]
+        num = info[2]
+        hours = info[3]
+        desc = info[4]
+
+        self.labelCName = tk.Label(self, text="Name: " + name)
+        self.labelCCode = tk.Label(self, text="Head ID: " + code)
+        self.labelCNum = tk.Label(self, text="Total Credits: " + str(num))
+        self.labelCHours = tk.Label(self, text="Max Units: " + str(hours))
+        self.labelCDesc = tk.Label(self, text="Coverage: " + desc)
+
+        self.labelCName.pack()
+        self.labelCCode.pack()
+        self.labelCNum.pack()
+        self.labelCHours.pack()
+        self.labelCDesc.pack()
+
+    def gotostartpage(self, controller):
+        self.labelCName.pack_forget()
+        self.labelCCode.pack_forget()
+        self.labelCNum.pack_forget()
+        self.labelCHours.pack_forget()
+        self.labelCDesc.pack_forget()
+        controller.show_frame(StartPage)
 
 
 class SearchCourseByCurriculumPage(tk.Frame):

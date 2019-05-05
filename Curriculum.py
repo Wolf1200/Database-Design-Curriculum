@@ -21,7 +21,7 @@ def insertcurriculum(array):
 
 
 # Function to get curriculum
-def getcorriculum(name):
+def getcurriculum(name):
     # Define variables
     global mycursor
     query = "select * from curriculum where name='" + name + "'"
@@ -32,6 +32,25 @@ def getcorriculum(name):
     # Return result set
     return mycursor.fetchall()
 
+
+def getcurrentcurriculums():
+    global mycursor
+    query = "select name from Curriculum"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
+
+
+def getcurrentcourses():
+    global mycursor
+    query = "select name from Course"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
 
 # Function to insert course
 def insertcourse(array):
@@ -64,10 +83,10 @@ def insertcourse(array):
 
 
 # Function to get course
-def getcourse(subcode, coursenum):
+def getcourse(coursename):
     # Define variables
     global mycursor
-    query = "select * from course where subCode='" + subcode + "' and courseNum='" + coursenum + "'"
+    query = "select * from course where name='" + coursename + "'"
 
     # Execute query
     mycursor.execute(query)
