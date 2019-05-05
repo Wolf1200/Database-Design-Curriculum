@@ -217,11 +217,11 @@ def insertgoalgrade(array):
 
 
 # Function to get goal/grade
-def getgoalgrade(semester, year, secid, subcode, coursenum, goalid):
+def getgoalgrade(semester, year, secid, courseName, goalid):
     # Define variables
     global mycursor
     query = "select * from goalgrades where semester='" + semester + "' and year='" + year + "' and sectionID='"\
-            + secid + "' and subCode='" + subcode + "' and courseNumber='" + coursenum + "' and goalID='" + goalid + "'"
+            + secid + "' and courseName = '" + courseName + "' and goalID='" + goalid + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -264,8 +264,8 @@ def insertcoursetopics(array):
     global mycursor
 
     # Define insert query
-    query = "insert into coursetopics (subCode, courseNumber, curriculumName, topicID, units) values " \
-            "(%s, %s, %s, %s, %s)"
+    query = "insert into coursetopics (courseName, curriculumName, topicID, units) values " \
+            "(%s, %s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
@@ -273,10 +273,10 @@ def insertcoursetopics(array):
 
 
 # Function to get Course/Topics
-def getcoursetopics(subcode, coursenum, currname, topicid):
+def getcoursetopics(courseName, currname, topicid):
     # Define variables
     global mycursor
-    query = "select * from coursetopics where subCode='" + subcode + "' and courseNumber='" + coursenum + "' and " \
+    query = "select * from coursetopics where courseName = '" + courseName + "' and " \
             "curriculumName='" + currname + "' and topicID='" + topicid + "'"
 
     # Execute query
@@ -293,7 +293,7 @@ def insertcoursegoals(array):
     global mycursor
 
     # Define query to insert
-    query = "insert into coursegoals (curriculumName, subCode, courseNumber, goalID) values (%s, %s, %s, %s)"
+    query = "insert into coursegoals (curriculumName, courseName, goalID) values (%s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
@@ -301,11 +301,11 @@ def insertcoursegoals(array):
 
 
 # Function to get Course/Goals
-def getcoursegoals(currname, subcode, coursenum, goalid):
+def getcoursegoals(currname, courseName, goalid):
     # Define variables
     global mycursor
-    query = "select * from coursegoals where curriculumName='" + currname + "' and subCode='" + subcode + "' and " \
-            "courseNumber='" + coursenum + "' and goalID='" + goalid + "'"
+    query = "select * from coursegoals where curriculumName='" + currname + "' and courseName = '" + courseName + \
+            "' and goalID='" + goalid + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -321,8 +321,8 @@ def insertcurriculumcourses(array):
     global mycursor
 
     # Define query to insert
-    query = "insert into curriculumcourses (curriculumName, subCode, courseNumber, optional) " \
-            "values (%s, %s, %s, %s, %s)"
+    query = "insert into curriculumcourses (curriculumName, courseName, optional) " \
+            "values (%s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
@@ -330,11 +330,11 @@ def insertcurriculumcourses(array):
 
 
 # Function to get Curriculum/Course
-def getcurriculumcourse(currname, subcode, coursenum):
+def getcurriculumcourse(currname, courseName):
     # Define variables
     global mycursor
-    query = "select * from curriculumcourses where curriculumName='" + currname + "' and subCode='" + subcode + "'" \
-            " and courseNumber='" + coursenum + "'"
+    query = "select * from curriculumcourses where curriculumName='" + currname + "' and courseName = '" + \
+            courseName + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -350,9 +350,9 @@ def insertstudentgrades(array):
     global mycursor
 
     # Define query to insert
-    query = "insert into studentgrades (semester, year, sectionID, subCode, courseNumber, numAP, numA, numAM, numBP," \
+    query = "insert into studentgrades (semester, year, sectionID, courseName, numAP, numA, numAM, numBP," \
             " numB, numBM, numCP, numC, numCM, numDP, numD, numDM, numF, numW, numI) values " \
-            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
@@ -360,11 +360,11 @@ def insertstudentgrades(array):
 
 
 # Function to get StudentGrades
-def getstudentgrades(semester, year, secid, subcode, coursenum):
+def getstudentgrades(semester, year, secid, courseName):
     # Define variables
     global mycursor
     query = "select * from studentgrades where semester='" + semester + "' and year='" + year + "' and sectionID='" \
-            + secid + "' and subCode='" + subcode + "' and courseNumber='" + coursenum + "'"
+            + secid + "' and courseName = '" + courseName + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -380,8 +380,8 @@ def insertcoursesections(array):
     global mycursor
 
     # Define query to insert
-    query = "insert into coursesections (semester, year, sectionID, subCode, courseNumber) values " \
-            "(%s, %s, %s, %s, %s)"
+    query = "insert into coursesections (semester, year, sectionID, courseName) values " \
+            "(%s, %s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
@@ -389,11 +389,11 @@ def insertcoursesections(array):
 
 
 # Function to get Course/Sections
-def getcoursesection(semester, year, secid, subcode, coursenum):
+def getcoursesection(semester, year, secid, courseName):
     # Define variables
     global mycursor
     query = "select * from coursesections where semester='" + semester + "' and year='" + year + "' and sectionID='" \
-            + secid + "' and subCode='" + subcode + "' and courseNumber='" + coursenum + "'"
+            + secid + "' and courseName = '" + courseName + "'"
 
     # Execute query
     mycursor.execute(query)
