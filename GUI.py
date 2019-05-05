@@ -21,7 +21,7 @@ class DatabaseGUI(tk.Tk):
 
         for F in (StartPage, SearchCurriculumPage, SearchCoursePage,
                   SearchCourseByCurriculumPage, CurriculumSemesterRangeSearch,
-                  CurriculumDashboardPage):
+                  CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -31,6 +31,76 @@ class DatabaseGUI(tk.Tk):
     def show_frame(self, cont):
         frame = self.frames[cont]
         frame.tkraise()
+
+
+class InsertCurriculumPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Curriculum Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        labelCName = tk.Label(self, text="Name")
+        labelCID = tk.Label(self, text="Head ID")
+        labelCCred = tk.Label(self, text="Total Credits")
+        labelmaxCUnits = tk.Label(self, text="Max Units")
+        labelCCoverage = tk.Label(self, text="Coverage")
+        labelCNumGoals = tk.Label(self, text="Number of Goals")
+        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+
+        vcmd = (self.register(self.validateint))
+        self.nametext = tk.Entry(self)
+        self.headidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.totcreditstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.maxunitstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.coveragetext = tk.Entry(self)
+        self.numgoalstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+
+        labelCName.pack()
+        self.nametext.pack()
+        labelCID.pack()
+        self.headidtext.pack()
+        labelCCred.pack()
+        self.totcreditstext.pack()
+        labelmaxCUnits.pack()
+        self.maxunitstext.pack()
+        labelCCoverage.pack()
+        self.coveragetext.pack()
+        labelCNumGoals.pack()
+        self.numgoalstext.pack()
+        insert.pack(side=tk.BOTTOM)
+        button.pack(side=tk.BOTTOM)
+
+    def insertpressed(self, controller):
+        name = self.nametext.get()
+        id = self.headidtext.get()
+        totcred = self.totcreditstext.get()
+        maxunits = self.maxunitstext.get()
+        coverage = self.coveragetext.get()
+        numgoals = self.numgoalstext.get()
+
+        if not name or not id or not totcred or not maxunits or not coverage or not numgoals:
+            self.errorlabel.pack()
+        else:
+            array = [name, id, totcred, maxunits, coverage, numgoals]
+            insertcurriculum(array)
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            controller.show_frame(StartPage)
+
+    def backtostart(self, controller):
+        if self.errorlabel.winfo_ismapped():
+            self.errorlabel.pack_forget()
+        controller.show_frame(StartPage)
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
 
 
 class SearchCurriculumPage(tk.Frame):
@@ -146,6 +216,73 @@ class SearchCoursePage(tk.Frame):
         controller.show_frame(StartPage)
 
 
+class InsertCoursePage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Course Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        labelCName = tk.Label(self, text="Name")
+        labelCCode = tk.Label(self, text="Sub Code")
+        labelCNum = tk.Label(self, text="Course Number")
+        labelCHours = tk.Label(self, text="Credit Hours")
+        labelCDesc = tk.Label(self, text="Description")
+
+        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+
+        vcmd = (self.register(self.validateint))
+        self.nametext = tk.Entry(self)
+        self.codetext = tk.Entry(self)
+        self.coursenumtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.hourstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.desctext = tk.Text(self)
+
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+
+        labelCName.pack()
+        self.nametext.pack()
+        labelCCode.pack()
+        self.codetext.pack()
+        labelCNum.pack()
+        self.coursenumtext.pack()
+        labelCHours.pack()
+        self.hourstext.pack()
+        labelCDesc.pack()
+        self.desctext.pack()
+        insert.pack(side=tk.BOTTOM)
+        button.pack(side=tk.BOTTOM)
+
+    def insertpressed(self, controller):
+        name = self.nametext.get()
+        code = self.codetext.get()
+        coursenum = self.coursenumtext.get()
+        hours = self.hourstext.get()
+        desc = self.desctext.get(1.0, tk.END)
+
+        if not name or not code or not coursenum or not hours or not desc:
+            self.errorlabel.pack()
+        else:
+            array = [name, code, coursenum, hours, desc]
+            print(array)
+            insertcourse(array)
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            controller.show_frame(StartPage)
+
+    def backtostart(self, controller):
+        if self.errorlabel.winfo_ismapped():
+            self.errorlabel.pack_forget()
+        controller.show_frame(StartPage)
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
+
+
 class SearchCourseByCurriculumPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -252,9 +389,15 @@ class StartPage(tk.Frame):
                                                   ))
         button5 = tk.Button(self, text="Curriculum Dashboard", command=lambda:
                             controller.show_frame(CurriculumDashboardPage))
+        button6 = tk.Button(self, text="Insert Curriculum", command=lambda:
+                            controller.show_frame(InsertCurriculumPage))
+        button7 = tk.Button(self, text="Insert Course", command=lambda:
+                            controller.show_frame(InsertCoursePage))
 
         button1.pack()
         button2.pack()
         button3.pack()
         button4.pack()
         button5.pack()
+        button6.pack()
+        button7.pack()
