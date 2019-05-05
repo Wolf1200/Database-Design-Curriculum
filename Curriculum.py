@@ -437,9 +437,9 @@ def initdatabase():
     mycursor.execute("create table IF NOT EXISTS goal (id int not null, description text, curriculum varchar(25) "
                      "not null, constraint goal_pk primary key (id, curriculum))")
 
-    mycursor.execute("create table IF NOT EXISTS courseTopics (subCode varchar(25) not null, courseNumber int not null,"
+    mycursor.execute("create table IF NOT EXISTS courseTopics (courseName varchar(25) not null,"
                      " curriculumName varchar(25) not null, topicID int not null, units float,"
-                     "constraint courseTopics_pk primary key (subCode, courseNumber, curriculumName, topicID))")
+                     "constraint courseTopics_pk primary key (courseName, curriculumName, topicID))")
 
     mycursor.execute("create table IF NOT EXISTS topics (id int not null, name varchar(25), "
                      "constraint topics_pk primary key (id))")
@@ -448,24 +448,24 @@ def initdatabase():
                      "courseNumber int not null, creditHours int, description text, constraint course_pk "
                      "primary key (name, subCode, courseNumber))")
 
-    mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, subCode varchar(25) "
-                     "not null, courseNumber int not null, goalID int not null, "
-                     "constraint courseGoals_pk primary key (curriculumName, subCode, courseNumber, goalID))")
+    mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, "
+                     "courseName varchar(25) not null, goalID int not null, "
+                     "constraint courseGoals_pk primary key (curriculumName, courseName, goalID))")
 
-    mycursor.execute("create table IF NOT EXISTS curriculumCourses (curriculumName varchar(25) not null, subCode "
-                     "varchar(25) not null, courseNumber int not null, optional bool,"
-                     "constraint curriculumCourses_pk primary key (curriculumName, subCode, courseNumber))")
+    mycursor.execute("create table IF NOT EXISTS curriculumCourses (curriculumName varchar(25) not null,"
+                     "courseName varchar(25) not null, optional bool,"
+                     "constraint curriculumCourses_pk primary key (curriculumName, courseName))")
 
     mycursor.execute("create table IF NOT EXISTS studentGrades (semester varchar(25) not null, year year not null, "
-                     "sectionID int not null, subCode varchar(25) not null, courseNumber int not null, numAP int, "
+                     "sectionID int not null, courseName varchar(25) not null, numAP int, "
                      "numA int, numAM int, numBP int, numB int, numBM int, numCP int, numC int, numCM int, numDP int, "
                      "numD int, numDM int, numF int, numW int, numI int,"
-                     "constraint studentGrades_pk primary key (semester, year, sectionID, subCode, courseNumber))")
+                     "constraint studentGrades_pk primary key (semester, year, sectionID, courseName))")
 
     mycursor.execute("create table IF NOT EXISTS courseSections (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, "
                      "enrolled int, comment1 text, comment2 text, constraint courseSections_pk primary key "
-                     "(semester, year, sectionID, subCode, courseNumber))")
+                     "(semester, year, sectionID, courseName))")
 
     mycursor.execute("create table IF NOT EXISTS goalGrades (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, goalID int "
