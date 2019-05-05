@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-from tkinter import Scrollbar
 from tkinter import Canvas
+from tkinter import Scrollbar
 from Curriculum import *
 
 LARGE_FONT = ("Verdana", 12)
@@ -109,14 +109,19 @@ class SearchCurriculumPage(tk.Frame):
         label = tk.Label(self, text="Search Curriculum Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        curriculums = getcurrentcurriculums()
+        curriculumstemp = getcurrentcurriculums()
+        curriculums = [None] * len(curriculumstemp)
+        i = 0
+        for curr in curriculumstemp:
+            curriculums[i] = curr[0]
+            i += 1
 
-        self.labelCName = ""
-        self.labelCID = ""
-        self.labelCCred = ""
-        self.labelmaxCUnits = ""
-        self.labelCCoverage = ""
-        self.labelCNumGoals = ""
+        self.labelCName = tk.Label(self)
+        self.labelCID = tk.Label(self)
+        self.labelCCred = tk.Label(self)
+        self.labelmaxCUnits = tk.Label(self)
+        self.labelCCoverage = tk.Label(self)
+        self.labelCNumGoals = tk.Label(self)
 
         self.curriculum = ttk.Combobox(self, values=curriculums)
         button1 = tk.Button(self, text="Search", command=lambda: self.getinfo())
@@ -137,6 +142,14 @@ class SearchCurriculumPage(tk.Frame):
         maxUnits = info[3]
         coverage = info[4]
         numGoals = info[5]
+
+        if self.labelCName.winfo_ismapped():
+            self.labelCName.pack_forget()
+            self.labelCID.pack_forget()
+            self.labelCCred.pack_forget()
+            self.labelmaxCUnits.pack_forget()
+            self.labelCCoverage.pack_forget()
+            self.labelCNumGoals.pack_forget()
 
         self.labelCName = tk.Label(self, text="Name: " + name)
         self.labelCID = tk.Label(self, text="Head ID: " + str(headID))
@@ -162,21 +175,89 @@ class SearchCurriculumPage(tk.Frame):
         controller.show_frame(StartPage)
 
 
+class CurriculumDashboardPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Curriculum Dashboard", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        canvas = Canvas(self)
+        scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: controller.show_frame(StartPage))
+
+        scrollbar.pack(side="right", fill="y")
+        button.pack(side=tk.BOTTOM)
+
+
+class CurriculumSemesterRangeSearch(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Search Aggregate Distribution Page",
+                         font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        labelCurr = tk.Label(self, text="Curriculum")
+        labelYear1 = tk.Label(self, text="Year")
+        labelYear2 = tk.Label(self, text="Year")
+        labelSemester1 = tk.Label(self, text="Semester Start")
+        labelSemester2 = tk.Label(self, text="Semester Start")
+
+        curriculum = ttk.Combobox(self, values=["CS", "MTH", "PHY"])
+        curriculum.current(0)
+        semesterStart = ttk.Combobox(self, values=["Spring", "Fall"])
+        semesterStart.current(0)
+        semesterEnd = ttk.Combobox(self, values=["Spring", "Fall"])
+        semesterEnd.current(0)
+        yearStart = ttk.Combobox(self, values=["2016", "2017", "2018"])
+        yearStart.current(0)
+        yearEnd = ttk.Combobox(self, values=["2016", "2017", "2018"])
+        yearEnd.current(0)
+        button1 = tk.Button(self, text="Search")
+        button2 = tk.Button(self, text="Back to Start Page",
+                            command=lambda: controller.show_frame(StartPage))
+
+        labelCurr.pack(side=tk.TOP)
+        curriculum.pack(side=tk.TOP)
+
+        labelYear1.pack(side=tk.TOP)
+        yearStart.pack(side=tk.TOP)
+
+        labelSemester1.pack(side=tk.TOP)
+        semesterStart.pack(side=tk.TOP)
+
+        labelYear2.pack(side=tk.TOP)
+        yearEnd.pack(side=tk.TOP)
+
+        labelSemester2.pack(side=tk.TOP)
+        semesterEnd.pack(side=tk.TOP)
+
+        button1.pack(side=tk.BOTTOM)
+        button2.pack(side=tk.BOTTOM)
+
+
 class SearchCoursePage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Search Course Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        self.labelCName = ""
-        self.labelCCode = ""
-        self.labelCNum = ""
-        self.labelCHours = ""
-        self.labelCDesc = ""
+        self.labelCName = tk.Label(self)
+        self.labelCCode = tk.Label(self)
+        self.labelCNum = tk.Label(self)
+        self.labelCHours = tk.Label(self)
+        self.labelCDesc = tk.Label(self)
 
-        courses = getcurrentcourses()
+        coursestemp = getcurrentcourses()
+        courses = [None] * len(coursestemp)
+        i = 0
+        for curr in coursestemp:
+            courses[i] = curr[0]
+            i += 1
 
-        self.course = ttk.Combobox(self, values=courses[0])
+        self.course = ttk.Combobox(self, values=courses)
         button1 = tk.Button(self, text="Search", command=lambda: self.getinfo())
         button2 = tk.Button(self, text="Back to Start Page",
                             command=lambda: self.gotostartpage(controller))
@@ -194,6 +275,13 @@ class SearchCoursePage(tk.Frame):
         num = info[2]
         hours = info[3]
         desc = info[4]
+
+        if self.labelCName.winfo_ismapped():
+            self.labelCName.pack_forget()
+            self.labelCCode.pack_forget()
+            self.labelCNum.pack_forget()
+            self.labelCHours.pack_forget()
+            self.labelCDesc.pack_forget()
 
         self.labelCName = tk.Label(self, text="Name: " + name)
         self.labelCCode = tk.Label(self, text="Head ID: " + code)
@@ -306,69 +394,6 @@ class SearchCourseByCurriculumPage(tk.Frame):
         course.pack(side=tk.TOP)
         button1.pack(side=tk.BOTTOM)
         button2.pack(side=tk.BOTTOM)
-
-
-class CurriculumSemesterRangeSearch(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Search Aggregate Distribution Page",
-                         font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
-
-        labelCurr = tk.Label(self, text="Curriculum")
-        labelYear1 = tk.Label(self, text="Year")
-        labelYear2 = tk.Label(self, text="Year")
-        labelSemester1 = tk.Label(self, text="Semester Start")
-        labelSemester2 = tk.Label(self, text="Semester Start")
-
-        curriculum = ttk.Combobox(self, values=["CS", "MTH", "PHY"])
-        curriculum.current(0)
-        semesterStart = ttk.Combobox(self, values=["Spring", "Fall"])
-        semesterStart.current(0)
-        semesterEnd = ttk.Combobox(self, values=["Spring", "Fall"])
-        semesterEnd.current(0)
-        yearStart = ttk.Combobox(self, values=["2016", "2017", "2018"])
-        yearStart.current(0)
-        yearEnd = ttk.Combobox(self, values=["2016", "2017", "2018"])
-        yearEnd.current(0)
-        button1 = tk.Button(self, text="Search")
-        button2 = tk.Button(self, text="Back to Start Page",
-                            command=lambda: controller.show_frame(StartPage))
-
-        labelCurr.pack(side=tk.TOP)
-        curriculum.pack(side=tk.TOP)
-
-        labelYear1.pack(side=tk.TOP)
-        yearStart.pack(side=tk.TOP)
-
-        labelSemester1.pack(side=tk.TOP)
-        semesterStart.pack(side=tk.TOP)
-
-        labelYear2.pack(side=tk.TOP)
-        yearEnd.pack(side=tk.TOP)
-
-        labelSemester2.pack(side=tk.TOP)
-        semesterEnd.pack(side=tk.TOP)
-
-        button1.pack(side=tk.BOTTOM)
-        button2.pack(side=tk.BOTTOM)
-
-
-class CurriculumDashboardPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Curriculum Dashboard", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
-
-        canvas = Canvas(self)
-        scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        button = tk.Button(self, text="Back to Start Page",
-                           command=lambda: controller.show_frame(StartPage))
-
-        scrollbar.pack(side="right", fill="y")
-        button.pack(side=tk.BOTTOM)
 
 
 class StartPage(tk.Frame):
