@@ -402,11 +402,19 @@ def getcoursesection(semester, year, secid, subcode, coursenum):
     return mycursor.fetchall()
 
 
-# Function to return all topics and courses related to a curriculum
+# Function to return all topics and courses related to a curriculum (names only)
 def getallcoursestopics(currname):
     # Define variables
     global mycursor
-    query = ("select * from course")
+    query = "select a.name, c.name from course a, curriculum.curriculumcourses b, topics c, curriculumtopics d where" \
+            " b.curriculumName = '" + currname + "' and a.subCode = b.subCode and a.courseNumber = b.courseNumber " \
+            "and d.curriculumName = '" + currname + "' and d.topicID = c.id"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
 
 
 # Function to initialize the database
