@@ -49,7 +49,7 @@ class DatabaseGUI(tk.Tk):
         for F in (StartPage, SearchCurriculumPage, SearchCoursePage,
                   SearchCourseByCurriculumPage, CurriculumSemesterRangeSearch,
                   CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage,
-                  InsertTopicPage, InsertStudentGrades):
+                  InsertTopicPage, InsertStudentGrades, InsertGoalPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -1016,6 +1016,79 @@ class InsertStudentGrades(tk.Frame):
             return False
 
 
+class InsertGoalPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        labelcurr = tk.Label(self, text="Curriculum")
+        labeldescription = tk.Label(self, text="Description")
+        labelid = tk.Label(self, text="Goal ID")
+
+        vcmd = (self.register(self.validateint))
+
+        self.identry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.desctext = tk.Text(self)
+        self.curriculumbox = ttk.Combobox(self, values=CURRICULUMS)
+
+        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+
+        labelid.pack()
+        self.identry.pack()
+        labeldescription.pack()
+        self.desctext.pack()
+        labelcurr.pack()
+        self.curriculumbox.pack()
+        insert.pack(side=tk.BOTTOM)
+        button.pack(side=tk.BOTTOM)
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
+
+    def insertpressed(self, controller):
+        curr = self.curriculumbox.get()
+        id = self.identry.get()
+        description = self.desctext.get(1.0, 'end')
+
+        if not curr or not id or not description:
+            self.errorlabel.pack()
+        else:
+            array = [id, description, curr]
+            insertgoal(array)
+
+            self.desctext.delete(1.0, 'end')
+            self.identry.delete(0, 'end')
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            controller.show_frame(StartPage)
+
+    def backtostart(self, controller):
+        if self.errorlabel.winfo_ismapped():
+            self.errorlabel.pack_forget()
+        self.desctext.delete(1.0, 'end')
+        self.identry.delete(0, 'end')
+        controller.show_frame(StartPage)
+        
+# class InsertCourseGoalPage(tk.Frame):
+#    def __init__(self, parent, controller):
+#        tk.Frame.__init__(self, parent)
+#        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+#        label.pack(pady=10, padx=10)
+#
+#        labelcurr = tk.Label(self, text="Curriculum")
+#        labelcourse = tk.Label(self, text="Course")
+#        labelid = tk.Label(self, text="Goal ID")
+#
+#        self.curriculum = ttk.Combobox(self, values=CURRICULUMS)
+#        self.course = ttk.Combobox(self, values=COURSES)
+
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1040,6 +1113,8 @@ class StartPage(tk.Frame):
                             controller.show_frame(InsertTopicPage))
         button8 = tk.Button(self, text="Insert Student Grades", command=lambda:
                             controller.show_frame(InsertStudentGrades))
+        button9 = tk.Button(self, text="Insert Course Goal", command=lambda:
+                            controller.show_frame(InsertGoalPage))
 
         button1.pack()
         button2.pack()
@@ -1049,3 +1124,4 @@ class StartPage(tk.Frame):
         button6.pack()
         button7.pack()
         button8.pack()
+        button9.pack()
