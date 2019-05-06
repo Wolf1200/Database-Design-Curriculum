@@ -77,6 +77,13 @@ def getrangecourses(currname, startsem, endsem, startyear, endyear):
     return validcourses
 
 
+def getyears():
+    global mycursor
+    query = "select year from coursesections group by year"
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
 # Function to insert curriculum
 def insertcurriculum(array):
     # Define variables
