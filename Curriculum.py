@@ -6,6 +6,41 @@ mycursor = ""
 results = ""
 
 
+# Function to get a count of the required and optional courses to a curriculum
+def getrequiredcount(currname):
+    # Define variables
+    global mycursor
+    query = "select count(*) from courses a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
+            " and b.subCode = a.subCode and b.courseNumber = a.courseNumber and b.optional='true'"
+
+    # Execute query for count of required
+    mycursor.execute(query)
+
+    # Get result set from query
+    res = mycursor.fetchall()
+
+    # Get count of req courses from result set
+    reqcount = res[0]
+
+    # Query for getting count of optional courses in curriculum
+    query = "select count(*) from courses a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
+            " and b.subCode = a.subCode and b.courseNumber = a.courseNumber and b.optional='false'"
+
+    # Execute query for count of optional
+    mycursor.execute(query)
+
+    # Get result set from query
+    res = mycursor.fetchall()
+
+    # Get count of optional courses from result set
+    opcount = res[0]
+
+    # Make a set to return counts
+    retset = {reqcount, opcount}
+
+    return retset
+
+
 # Function to insert curriculum
 def insertcurriculum(array):
     # Define variables
