@@ -48,7 +48,8 @@ class DatabaseGUI(tk.Tk):
 
         for F in (StartPage, SearchCurriculumPage, SearchCoursePage,
                   SearchCourseByCurriculumPage, CurriculumSemesterRangeSearch,
-                  CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage):
+                  CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage,
+                  InsertTopicPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -506,6 +507,8 @@ class InsertCoursePage(tk.Frame):
             if self.errorlabel.winfo_ismapped():
                 self.errorlabel.pack_forget()
             if int(TEMPHOURS) >= int(HOURS):
+                TEMPHOURS = 0
+                HOURS = 0
                 controller.show_frame(StartPage)
 
     def backtostart(self, controller):
@@ -557,7 +560,6 @@ class SearchCourseByCurriculumPage(tk.Frame):
         self.f = [tk.Label(self)]
         self.w = [tk.Label(self)]
         self.i = [tk.Label(self)]
-
 
         global CURRICULUMS
         global COURSES
@@ -709,6 +711,123 @@ class SearchCourseByCurriculumPage(tk.Frame):
         controller.show_frame(StartPage)
 
 
+class InsertTopicPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Topic Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        vcmd = (self.register(self.validateint))
+        vcmd2 = (self.register(self.validatefloat), '%S', '%P')
+        curriclabel = tk.Label(self, text="Curriculum")
+        self.currictext = tk.Entry(self)
+        topiclabel = tk.Label(self, text="Topic ID")
+        self.topicidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        topicnamelabel = tk.Label(self, text="Topic Name")
+        self.topicnametext = tk.Entry(self)
+        levellabel = tk.Label(self, text="Level")
+        self.leveltext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        subjectlabel = tk.Label(self, text="Subject Area")
+        self.subjecttext = tk.Entry(self)
+        unitslabel = tk.Label(self, text="Units")
+        self.unitstext = tk.Entry(self, validate='all', validatecommand=vcmd2)
+        self.errorlabel = tk.Label(self, text="One or more fields left blank", fg='red')
+        self.curricerror = tk.Label(self, text="Curriculum not valid", fg='red')
+        self.unitserror = tk.Label(self, text="Units above max units", fg='red')
+
+        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+
+        curriclabel.pack()
+        self.currictext.pack()
+        topiclabel.pack()
+        self.topicidtext.pack()
+        topicnamelabel.pack()
+        self.topicnametext.pack()
+        levellabel.pack()
+        self.leveltext.pack()
+        subjectlabel.pack()
+        self.subjecttext.pack()
+        unitslabel.pack()
+        self.unitstext.pack()
+        insert.pack(side=tk.BOTTOM)
+        button.pack(side=tk.BOTTOM)
+
+    def insertpressed(self, controller):
+        curric = self.currictext.get()
+        topicid = self.topicidtext.get()
+        topicname = self.topicnametext.get()
+        level = self.leveltext.get()
+        subject = self.subjecttext.get()
+        units = self.unitstext.get()
+
+        global CURRICULUMS
+
+        if not curric or not topicid or not topicname or not level or not subject or not units:
+            if self.curricerror.winfo_ismapped():
+                self.curricerror.pack_forget()
+            if self.unitserror.winfo_ismapped():
+                self.unitserror.pack_forget()
+            self.errorlabel.pack()
+        elif curric not in CURRICULUMS:
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            if self.unitserror.winfo_ismapped():
+                self.unitserror.pack_forget()
+            self.curricerror.pack()
+        elif float(units) > float(getcurriculum(curric)[0][3]):
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            if self.curricerror.winfo_ismapped():
+                self.curricerror.pack_forget()
+            self.unitserror.pack()
+        else:
+            self.currictext.delete(0, 'end')
+            self.topicidtext.delete(0, 'end')
+            self.leveltext.delete(0, 'end')
+            self.subjecttext.delete(0, 'end')
+            self.unitstext.delete(0, 'end')
+
+            topic = [topicid, topicname]
+            inserttopics(topic)
+
+            array = [curric, topicid, topicname, level, subject, units]
+            insertcurriculumtopics(array)
+
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            controller.show_frame(StartPage)
+
+    def backtostart(self, controller):
+        if self.curricerror.winfo_ismapped():
+            self.curricerror.pack_forget()
+        if self.errorlabel.winfo_ismapped():
+            self.errorlabel.pack_forget()
+        self.currictext.delete(0, 'end')
+        self.topicidtext.delete(0, 'end')
+        self.leveltext.delete(0, 'end')
+        self.subjecttext.delete(0, 'end')
+        self.unitstext.delete(0, 'end')
+        controller.show_frame(StartPage)
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
+
+    def validatefloat(self, text, P):
+        if text in '0123456789.':
+            try:
+                float(P)
+                return True
+            except ValueError:
+                return False
+        else:
+            return False
+
+
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -729,8 +848,8 @@ class StartPage(tk.Frame):
                             controller.show_frame(CurriculumDashboardPage))
         button6 = tk.Button(self, text="Insert Curriculum", command=lambda:
                             controller.show_frame(InsertCurriculumPage))
-        # button7 = tk.Button(self, text="Insert Course", command=lambda:
-        #                    controller.show_frame(InsertCoursePage))
+        button7 = tk.Button(self, text="Insert Curriculum Topic", command=lambda:
+                            controller.show_frame(InsertTopicPage))
 
         button1.pack()
         button2.pack()
@@ -738,4 +857,4 @@ class StartPage(tk.Frame):
         button4.pack()
         button5.pack()
         button6.pack()
-        #button7.pack()
+        button7.pack()
