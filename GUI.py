@@ -291,7 +291,7 @@ class CurriculumDashboardPage(tk.Frame):
         headnames = [tk.Label(self)] * size
         required = [tk.Label(self)] * size
         optional = [tk.Label(self)] * size
-        coverage = [tk.Label(self)] * size
+        totalhours = [tk.Label(self)] * size
 
         canvas = Canvas(self)
         scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
@@ -307,8 +307,11 @@ class CurriculumDashboardPage(tk.Frame):
             reqandopt = getrequiredcount(CURRICULUMS[x])
             required[x] = tk.Label(self, text="Required Courses: " + str(reqandopt[0][0]))
             optional[x] = tk.Label(self, text="Optional Courses: " + str(reqandopt[1][0]))
+            totcredits = getcurriculumcredits(CURRICULUMS[x])
+            totalhours[x] = tk.Label(self, text="Total Credit Hours: " + str(totcredits))
             required[x].pack()
             optional[x].pack()
+            totalhours[x].pack()
 
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: controller.show_frame(StartPage))
@@ -536,6 +539,25 @@ class SearchCourseByCurriculumPage(tk.Frame):
         self.labelnum = tk.Label(self)
         self.labelhours = tk.Label(self)
         self.labeldesc = tk.Label(self)
+        self.semester = [tk.Label(self)]
+        self.year = [tk.Label(self)]
+        self.section = [tk.Label(self)]
+        self.aplus = [tk.Label(self)]
+        self.a = [tk.Label(self)]
+        self.aminus = [tk.Label(self)]
+        self.bplus = [tk.Label(self)]
+        self.b = [tk.Label(self)]
+        self.bminus = [tk.Label(self)]
+        self.cplus = [tk.Label(self)]
+        self.c = [tk.Label(self)]
+        self.cminus = [tk.Label(self)]
+        self.dplus = [tk.Label(self)]
+        self.d = [tk.Label(self)]
+        self.dminus = [tk.Label(self)]
+        self.f = [tk.Label(self)]
+        self.w = [tk.Label(self)]
+        self.i = [tk.Label(self)]
+
 
         global CURRICULUMS
         global COURSES
@@ -558,12 +580,34 @@ class SearchCourseByCurriculumPage(tk.Frame):
         course = getcourse(coursename[1])[0]
         print(course)
 
+        sections = getcoursesections(course[0])
+        size = len(sections)
+
         if self.labelname.winfo_ismapped():
             self.labelname.pack_forget()
             self.labelcode.pack_forget()
             self.labelnum.pack_forget()
             self.labelhours.pack_forget()
             self.labeldesc.pack_forget()
+            for x in range(0, len(self.aplus)):
+                self.semester[x].pack_forget()
+                self.year[x].pack_forget()
+                self.section[x].pack_forget()
+                self.aplus[x].pack_forget()
+                self.a[x].pack_forget()
+                self.aminus[x].pack_forget()
+                self.bplus[x].pack_forget()
+                self.b[x].pack_forget()
+                self.bminus[x].pack_forget()
+                self.cplus[x].pack_forget()
+                self.c[x].pack_forget()
+                self.cminus[x].pack_forget()
+                self.dplus[x].pack_forget()
+                self.d[x].pack_forget()
+                self.dminus[x].pack_forget()
+                self.f[x].pack_forget()
+                self.w[x].pack_forget()
+                self.i[x].pack_forget()
 
         self.labelname = tk.Label(self, text="Name: " + course[0])
         self.labelcode = tk.Label(self, text="Sub Code: " + course[1])
@@ -577,6 +621,64 @@ class SearchCourseByCurriculumPage(tk.Frame):
         self.labelhours.pack()
         self.labeldesc.pack()
 
+        self.semester = [tk.Label(self)] * size
+        self.year = [tk.Label(self)] * size
+        self.section = [tk.Label(self)] * size
+        self.aplus = [tk.Label(self)] * size
+        self.a = [tk.Label(self)] * size
+        self.aminus = [tk.Label(self)] * size
+        self.bplus = [tk.Label(self)] * size
+        self.b = [tk.Label(self)] * size
+        self.bminus = [tk.Label(self)] * size
+        self.cplus = [tk.Label(self)] * size
+        self.c = [tk.Label(self)] * size
+        self.cminus = [tk.Label(self)] * size
+        self.dplus = [tk.Label(self)] * size
+        self.d = [tk.Label(self)] * size
+        self.dminus = [tk.Label(self)] * size
+        self.f = [tk.Label(self)] * size
+        self.w = [tk.Label(self)] * size
+        self.i = [tk.Label(self)] * size
+
+        for x in range(0, size):
+            self.semester[x] = tk.Label(self, text="Semester: " + sections[x][0])
+            self.year[x] = tk.Label(self, text="Year: " + sections[x][1])
+            self.section[x] = tk.Label(self, text="Section: " + sections[x][2])
+            self.aplus[x] = tk.Label(self, text="A Plus': " + sections[x][4])
+            self.a[x] = tk.Label(self, text="As: " + sections[x][4])
+            self.aminus[x] = tk.Label(self, text="A Minus': " + sections[x][4])
+            self.bplus[x] = tk.Label(self, text="B Plus': " + sections[x][4])
+            self.b[x] = tk.Label(self, text="Bs: " + sections[x][4])
+            self.bminus[x] = tk.Label(self, text="B Minus': " + sections[x][4])
+            self.cplus[x] = tk.Label(self, text="C Plus': " + sections[x][4])
+            self.c[x] = tk.Label(self, text="Cs: " + sections[x][4])
+            self.cminus[x] = tk.Label(self, text="C Minus': " + sections[x][4])
+            self.dplus[x] = tk.Label(self, text="D Plus': " + sections[x][4])
+            self.d[x] = tk.Label(self, text="Ds: " + sections[x][4])
+            self.dminus[x] = tk.Label(self, text="D Minus': " + sections[x][4])
+            self.f[x] = tk.Label(self, text="Fs: " + sections[x][4])
+            self.w[x] = tk.Label(self, text="Withdraws: " + sections[x][4])
+            self.i[x] = tk.Label(self, text="Is: " + sections[x][4])
+
+            self.semester[x].pack()
+            self.year[x].pack()
+            self.section[x].pack()
+            self.aplus[x].pack()
+            self.a[x].pack()
+            self.aminus[x].pack()
+            self.bplus[x].pack()
+            self.b[x].pack()
+            self.bminus[x].pack()
+            self.cplus[x].pack()
+            self.c[x].pack()
+            self.cminus[x].pack()
+            self.dplus[x].pack()
+            self.d[x].pack()
+            self.dminus[x].pack()
+            self.f[x].pack()
+            self.w[x].pack()
+            self.i[x].pack()
+
     def backtostart(self, controller):
         if self.labelname.winfo_ismapped():
             self.labelname.pack_forget()
@@ -584,6 +686,25 @@ class SearchCourseByCurriculumPage(tk.Frame):
             self.labelnum.pack_forget()
             self.labelhours.pack_forget()
             self.labeldesc.pack_forget()
+            for x in range(0, len(self.aplus)):
+                self.semester[x].pack_forget()
+                self.year[x].pack_forget()
+                self.section[x].pack_forget()
+                self.aplus[x].pack_forget()
+                self.a[x].pack_forget()
+                self.aminus[x].pack_forget()
+                self.bplus[x].pack_forget()
+                self.b[x].pack_forget()
+                self.bminus[x].pack_forget()
+                self.cplus[x].pack_forget()
+                self.c[x].pack_forget()
+                self.cminus[x].pack_forget()
+                self.dplus[x].pack_forget()
+                self.d[x].pack_forget()
+                self.dminus[x].pack_forget()
+                self.f[x].pack_forget()
+                self.w[x].pack_forget()
+                self.i[x].pack_forget()
 
         controller.show_frame(StartPage)
 

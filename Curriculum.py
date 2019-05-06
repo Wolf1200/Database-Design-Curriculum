@@ -11,7 +11,7 @@ def getrequiredcount(currname):
     # Define variables
     global mycursor
     query = "select count(*) from course a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
-            " and b.courseName = a.name and b.optional='false'"
+            " and b.courseName = a.name and b.optional=0"
 
     # Execute query for count of required
     mycursor.execute(query)
@@ -24,7 +24,7 @@ def getrequiredcount(currname):
 
     # Query for getting count of optional courses in curriculum
     query = "select count(*) from course a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
-            " and b.courseName = a.name and b.optional='true'"
+            " and b.courseName = a.name and b.optional=1"
 
     # Execute query for count of optional
     mycursor.execute(query)
@@ -83,6 +83,28 @@ def getcurriculumcourses(curr):
 
     mycursor.execute(query)
     return mycursor.fetchall()
+
+
+def getcurriculumcredits(curr):
+    global mycursor
+    query = "select b.creditHours from curriculumcourses a, course b where a.curriculumName = '" \
+            + curr + "' and a.courseName = b.name"
+
+    mycursor.execute(query)
+    hourstemp = mycursor.fetchall()
+    hours = 0
+    for hour in hourstemp:
+        hours += int(hour[0])
+    return hours
+
+
+def getcoursesections(course):
+    global mycursor
+    query = "select * from studentgrades where courseName = '" + course + "'"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
 
 def getyears():
     global mycursor
