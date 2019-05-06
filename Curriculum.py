@@ -110,12 +110,29 @@ def getcurriculum(name):
     # Return result set
     return mycursor.fetchall()
 
+
+# Function to edit a curriculum
+def editcurriculum(array, currname):
+    # Define variables
+    global mycursor
+    global mydb
+
+    query = "update curriculum.curriculum set name='" + array[0] + "', headID='" + array[1] + "', " \
+            "headName='" + array[2] + "', totCredits='" + array[3] + "', maxUnits='" + array[4] + "', " \
+            "coverage='" + array[5] + "', numGoals='" + array[6] + "' where (name='" + currname + "')"
+
+    # Execute edit and commit
+    mycursor.execute(query)
+    mydb.commit(query)
+
+
 def getcurriculumhead(curriculum):
     global mycursor
     query = "select headName from curriculum where name = '" + curriculum + "'"
     mycursor.execute(query)
 
     return mycursor.fetchall()
+
 
 def getcurrentcurriculums():
     global mycursor
@@ -180,6 +197,19 @@ def getcourse(coursename):
     return mycursor.fetchall()
 
 
+# Function to edit course
+def editcourse(array, name, subcode, coursenum):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.course set name=%s, subCode=%s, courseNumber=%s, creditHours=%s, description=%s" \
+            "where (name='" + name + "') and (subCode='" + subcode + "') and (courseNumber='" + coursenum + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
 # Function to insert topics
 def inserttopics(array):
     # Define variables
@@ -212,6 +242,18 @@ def gettopic(topicid):
 
     # Return result set
     return mycursor.fetchall()
+
+
+# Function to edit topics
+def edittopics(array, oldid):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.topics set id=%s, name=%s where (id='" + oldid + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
 
 
 # Function to insert goal
@@ -253,6 +295,18 @@ def getgoal(goalid, curr):
 
     # Return result set
     return mycursor.fetchall()
+
+
+# Function to edit goal
+def editgoal(array, oldid):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.goal set id=%s, description=%s, curriculum=%s where (id='" + oldid + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
 
 
 # Function to insert goal/grade relationship
@@ -314,6 +368,20 @@ def getgoalgrade(semester, year, secid, courseName, goalid):
     return mycursor.fetchall()
 
 
+# Function to edit goalgrade
+def editgoalgrade(array, semester, year, secid, coursename, goalid):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.goalgrades set semester=%s, year=%s, sectionID=%s, subCode=%s, courseNumber=%s, goalID" \
+            "=%s goalGrade=%s where (semester='" + semester + "') and (year='" + year + "') and (sectionID=" \
+            "'" + secid + "') and (courseName='" + coursename + "') and (goalID='" + goalid + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
 # Function to insert Curriculum/Topics
 def insertcurriculumtopics(array):
     # Define variables
@@ -341,6 +409,19 @@ def getcurriculumtopics(currname, topicid):
     return mycursor.fetchall()
 
 
+# Function to edit curriculumtopic
+def editcurriculumtopics(array, currname, topicid):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.curriculumtopics set curriculumName=%s, topicID=%s, level=%s, subjectArea=%s, " \
+            "units=%s where (curriculumName='" + currname + "') and (topicID='" + topicid + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
 # Function to insert Course/Topics
 def insertcoursetopics(array):
     # Define variables
@@ -357,10 +438,10 @@ def insertcoursetopics(array):
 
 
 # Function to get Course/Topics
-def getcoursetopics(courseName, currname, topicid):
+def getcoursetopics(coursename, currname, topicid):
     # Define variables
     global mycursor
-    query = "select * from coursetopics where courseName = '" + courseName + "' and " \
+    query = "select * from coursetopics where courseName = '" + coursename + "' and " \
             "curriculumName='" + currname + "' and topicID='" + topicid + "'"
 
     # Execute query
@@ -368,6 +449,20 @@ def getcoursetopics(courseName, currname, topicid):
 
     # Return result set
     return mycursor.fetchall()
+
+
+# Function to edit coursetopics
+def editcoursetopics(array, coursename, currname, topicid):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.coursetopics set courseName=%s, curriculumName=%s, topicID-%s, units=%s where " \
+            "(courseName='" + coursename + "') and (curriculumName='" + currname + "') and " \
+            "(topicID='" + topicid + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
 
 
 # Function to insert Course/Goals
@@ -398,6 +493,19 @@ def getcoursegoals(currname, courseName, goalid):
     return mycursor.fetchall()
 
 
+# Function to edit coursegoals
+def editcoursegoals(array, currname, coursename):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.coursegoals set curriculumName=%s, courseName=%s, goalID=%s where (curriculumName=" \
+            "'" + currname + "') and (courseName='" + coursename + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
 # Function to insert Curriculum/Courses
 def insertcurriculumcourses(array):
     # Define variables
@@ -414,17 +522,30 @@ def insertcurriculumcourses(array):
 
 
 # Function to get Curriculum/Course
-def getcurriculumcourse(currname, courseName):
+def getcurriculumcourse(currname, coursename):
     # Define variables
     global mycursor
     query = "select * from curriculumcourses where curriculumName='" + currname + "' and courseName = '" + \
-            courseName + "'"
+            coursename + "'"
 
     # Execute query
     mycursor.execute(query)
 
     # Return result set
     return mycursor.fetchall()
+
+
+# Function to edit curriculumcourse
+def editcurriculumcourse(array, currname, coursename):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.curriculumcourses set curriculumName=%s, courseName=%s, optional=%s where " \
+            "(curriculumName='" + currname + "') and (courseName='" + coursename + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
 
 
 # Function to insert StudentGrades
@@ -457,6 +578,21 @@ def getstudentgrades(semester, year, secid, courseName):
     return mycursor.fetchall()
 
 
+# Function to edit studentgrades
+def editstudentgrades(array, semester, year, secid, coursename):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.studentgrades set semester=%s, year=%s, sectionID=%s, courseName=%s, numAP=%s,numA=%s," \
+            " numAM=%s, numBP=%s, numB=%s, numBM=%s, numCP=%s, numC=%s, numCM=%s, numDP=%s, numD=%s, numDM=%s, " \
+            "numF=%s, numW=%s, numI=%s where (semester='" + semester + "') and (year='" + year + "') and (sectionID=" \
+            "'" + secid + "') and (courseName='" + coursename + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
+
+
 # Function to insert Course/Sections
 def insertcoursesections(array):
     # Define variables
@@ -484,6 +620,20 @@ def getcoursesection(semester, year, secid, courseName):
 
     # Return result set
     return mycursor.fetchall()
+
+
+# Function to edit coursesection
+def editcoursesection(array, semester, year, secid, coursename):
+    # Define variables
+    global mycursor
+    global mydb
+    query = "update curriculum.coursesections set semester=%s, year=%s, sectionID=%s, courseName=%s, enrolled=%s," \
+            " comment1=%s, comment2=%s where (semester='" + semester + "') and (year='" + year + "') and (sectionID=" \
+            "'" + secid + "') and (courseName='" + coursename + "')"
+
+    # Execute query and commit db
+    mycursor.execute(query, array)
+    mydb.commit()
 
 
 # Function to return all topics and courses related to a curriculum (names only)
