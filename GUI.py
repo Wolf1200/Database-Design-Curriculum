@@ -56,6 +56,8 @@ class DatabaseGUI(tk.Tk):
         frame = self.frames[cont]
         if cont == SearchCurriculumPage:
             frame.updatecurrlist()
+        if cont == SearchCoursePage:
+            frame.updatecourselist()
         frame.tkraise()
 
 
@@ -134,16 +136,23 @@ class InsertCurriculumPage(tk.Frame):
             self.maxunitstext.delete(0, 'end')
             self.coveragetext.delete(0, 'end')
             self.numgoalstext.delete(0, 'end')
-            array = [name, id, totcred, maxunits, coverage, numgoals]
+            array = [name, id, headname, totcred, maxunits, coverage, numgoals]
             insertcurriculum(array)
             if self.errorlabel.winfo_ismapped():
                 self.errorlabel.pack_forget()
             if self.coveragerror.winfo_ismapped():
                 self.coveragerror.pack_forget()
-            controller.show_frame(StartPage)
             updatecurriculums()
+            controller.show_frame(StartPage)
 
     def backtostart(self, controller):
+        self.nametext.delete(0, 'end')
+        self.headidtext.delete(0, 'end')
+        self.headname.delete(0, 'end')
+        self.totcreditstext.delete(0, 'end')
+        self.maxunitstext.delete(0, 'end')
+        self.coveragetext.delete(0, 'end')
+        self.numgoalstext.delete(0, 'end')
         if self.errorlabel.winfo_ismapped():
             self.errorlabel.pack_forget()
         controller.show_frame(StartPage)
@@ -265,8 +274,8 @@ class CurriculumDashboardPage(tk.Frame):
             names[x] = tk.Label(self, text="Name: " + CURRICULUMS[x])
             names[x].pack()
             headname = getcurriculumhead(CURRICULUMS[x])
-            print(headname)
-            headnames[x] = tk.Label(self, text="Head Name: " + headname)
+            headnames[x] = tk.Label(self, text="Head Name: " + headname[0][0])
+            headnames[x].pack()
 
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: controller.show_frame(StartPage))
@@ -444,6 +453,11 @@ class InsertCoursePage(tk.Frame):
             controller.show_frame(StartPage)
 
     def backtostart(self, controller):
+        self.nametext.delete(0, 'end')
+        self.codetext.delete(0, 'end')
+        self.coursenumtext.delete(0, 'end')
+        self.hourstext.delete(0, 'end')
+        self.desctext.delete(0, 'end')
         if self.errorlabel.winfo_ismapped():
             self.errorlabel.pack_forget()
         controller.show_frame(StartPage)

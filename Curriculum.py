@@ -47,8 +47,8 @@ def insertcurriculum(array):
     global mydb
     global mycursor
 
-    query = "insert into curriculum (name, headID, totCredits, maxUnits, coverage, numGoals) values " \
-            "(%s, %s, %s, %s, %s, %s)"
+    query = "insert into curriculum (name, headID, headName, totCredits, maxUnits, coverage, numGoals) values " \
+            "(%s, %s, %s, %s, %s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
