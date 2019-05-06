@@ -5,6 +5,28 @@ from tkinter import Scrollbar
 from Curriculum import *
 
 LARGE_FONT = ("Verdana", 12)
+CURRICULUMS = []
+COURSES = []
+
+
+def updatecurriculums():
+    global CURRICULUMS
+    tempcurriculums = getcurrentcurriculums()
+    CURRICULUMS = [None] * len(tempcurriculums)
+    i = 0
+    for curr in tempcurriculums:
+        CURRICULUMS[i] = curr[0]
+        i += 1
+
+
+def updatecourses():
+    global COURSES
+    tempcourses = getcurrentcourses()
+    COURSES = [None] * len(tempcourses)
+    i = 0
+    for curr in tempcourses:
+        COURSES[i] = curr[0]
+        i += 1
 
 
 class DatabaseGUI(tk.Tk):
@@ -30,6 +52,8 @@ class DatabaseGUI(tk.Tk):
 
     def show_frame(self, cont):
         frame = self.frames[cont]
+        if cont == SearchCurriculumPage:
+            frame.updatecurrlist()
         frame.tkraise()
 
 
@@ -51,11 +75,12 @@ class InsertCurriculumPage(tk.Frame):
                            command=lambda: self.backtostart(controller))
 
         vcmd = (self.register(self.validateint))
+        vcmd2 = (self.register(self.validatefloat), '%S', '%P')
         self.nametext = tk.Entry(self)
         self.headidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.headname = tk.Entry(self)
         self.totcreditstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.maxunitstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.maxunitstext = tk.Entry(self, validate='all', validatecommand=vcmd2)
         self.coveragetext = tk.Entry(self)
         self.numgoalstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
 
@@ -102,6 +127,7 @@ class InsertCurriculumPage(tk.Frame):
             if self.errorlabel.winfo_ismapped():
                 self.errorlabel.pack_forget()
             controller.show_frame(StartPage)
+            updatecurriculums()
 
     def backtostart(self, controller):
         if self.errorlabel.winfo_ismapped():
@@ -114,6 +140,16 @@ class InsertCurriculumPage(tk.Frame):
         else:
             return False
 
+    def validatefloat(self, text, P):
+        if text in '0123456789.':
+            try:
+                float(P)
+                return True
+            except ValueError:
+                return False
+        else:
+            return False
+
 
 class SearchCurriculumPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -121,12 +157,7 @@ class SearchCurriculumPage(tk.Frame):
         label = tk.Label(self, text="Search Curriculum Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        curriculumstemp = getcurrentcurriculums()
-        curriculums = [None] * len(curriculumstemp)
-        i = 0
-        for curr in curriculumstemp:
-            curriculums[i] = curr[0]
-            i += 1
+        updatecurriculums()
 
         self.labelCName = tk.Label(self)
         self.labelCID = tk.Label(self)
@@ -136,7 +167,8 @@ class SearchCurriculumPage(tk.Frame):
         self.labelCCoverage = tk.Label(self)
         self.labelCNumGoals = tk.Label(self)
 
-        self.curriculum = ttk.Combobox(self, values=curriculums)
+        global CURRICULUMS
+        self.curriculum = ttk.Combobox(self, values=CURRICULUMS)
         button1 = tk.Button(self, text="Search", command=lambda: self.getinfo())
         button2 = tk.Button(self, text="Back to Start Page",
                             command=lambda: self.gotostartpage(controller))
@@ -189,6 +221,12 @@ class SearchCurriculumPage(tk.Frame):
         self.labelCCoverage.pack_forget()
         self.labelCNumGoals.pack_forget()
         controller.show_frame(StartPage)
+
+    def updatecurrlist(self):
+        global CURRICULUMS
+        self.curriculum.pack_forget()
+        self.curriculum = ttk.Combobox(self, values=CURRICULUMS)
+        self.curriculum.pack()
 
 
 class CurriculumDashboardPage(tk.Frame):

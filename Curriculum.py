@@ -471,46 +471,60 @@ def initdatabase():
     # If some tables don't exist, create them
     mycursor.execute("create table IF NOT EXISTS curriculum (name varchar(25) not null, headID bigint, headName varchar(25),"
                      "totCredits int, maxUnits float, coverage varchar(25), numGoals int, "
-                     "constraint curriculum_pk primary key (name))")
-
-    mycursor.execute("create table IF NOT EXISTS curriculumTopics (curriculumName varchar(25) not null, topicID int "
-                     "not null, level int, subjectArea varchar(25), units float, constraint curriculumTopics_pk "
-                     "primary key (curriculumName, topicID))")
-
-    mycursor.execute("create table IF NOT EXISTS goal (id int not null, description text, curriculum varchar(25) "
-                     "not null, constraint goal_pk primary key (id, curriculum))")
-
-    mycursor.execute("create table IF NOT EXISTS courseTopics (courseName varchar(25) not null,"
-                     " curriculumName varchar(25) not null, topicID int not null, units float,"
-                     "constraint courseTopics_pk primary key (courseName, curriculumName, topicID))")
+                     "primary key (name))")
 
     mycursor.execute("create table IF NOT EXISTS topics (id int not null, name varchar(25), "
                      "constraint topics_pk primary key (id))")
+
+    mycursor.execute("create table IF NOT EXISTS curriculumTopics (curriculumName varchar(25) not null, topicID int "
+                     "not null, level int, subjectArea varchar(25), units float, "
+                     "primary key (curriculumName, topicID), foreign key (curriculumName) "
+                     "references curriculum (name), foreign key (topicID) references topics (id))")
+
+    mycursor.execute("create table IF NOT EXISTS goal (id int not null, description text, curriculum varchar(25) "
+                     "not null, primary key (id, curriculum),"
+                     "foreign key (curriculum) references curriculum (name))")
 
     mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null, subCode varchar(25) not null, "
                      "courseNumber int not null, creditHours int, description text, constraint course_pk "
                      "primary key (name, subCode, courseNumber))")
 
-    mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, "
-                     "courseName varchar(25) not null, goalID int not null, "
-                     "constraint courseGoals_pk primary key (curriculumName, courseName, goalID))")
+    mycursor.execute("create table IF NOT EXISTS courseTopics (courseName varchar(25) not null,"
+                     " curriculumName varchar(25) not null, topicID int not null, units float,"
+                     "primary key (courseName, curriculumName, topicID), foreign key (curriculumName, topicID) "
+                     "references curriculumtopics (curriculumName, topicID),"
+                     "foreign key (courseName) references course (name))")
 
     mycursor.execute("create table IF NOT EXISTS curriculumCourses (curriculumName varchar(25) not null,"
                      "courseName varchar(25) not null, optional bool,"
-                     "constraint curriculumCourses_pk primary key (curriculumName, courseName))")
+                     "primary key (curriculumName, courseName),"
+                     "foreign key (curriculumName) references curriculum (name),"
+                     "foreign key (courseName) references course(name))")
+
+    mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, "
+                     "courseName varchar(25) not null, goalID int not null, "
+                     "primary key (curriculumName, courseName, goalID),"
+                     "foreign key (curriculumName, courseName) "
+                     "references curriculumcourses (curriculumName, courseName),"
+                     "foreign key (goalID) references goal (id))")
+
+    mycursor.execute("create table IF NOT EXISTS courseSections (semester varchar(25) not null, year year not null, "
+                     "sectionID int not null, courseName varchar(25) not null, "
+                     "enrolled int, comment1 text, comment2 text, constraint courseSections_pk primary key "
+                     "(semester, year, sectionID, courseName),"
+                     "foreign key (courseName) references course (name))")
 
     mycursor.execute("create table IF NOT EXISTS studentGrades (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, numAP int, "
                      "numA int, numAM int, numBP int, numB int, numBM int, numCP int, numC int, numCM int, numDP int, "
                      "numD int, numDM int, numF int, numW int, numI int,"
-                     "constraint studentGrades_pk primary key (semester, year, sectionID, courseName))")
-
-    mycursor.execute("create table IF NOT EXISTS courseSections (semester varchar(25) not null, year year not null, "
-                     "sectionID int not null, courseName varchar(25) not null, "
-                     "enrolled int, comment1 text, comment2 text, constraint courseSections_pk primary key "
-                     "(semester, year, sectionID, courseName))")
+                     "primary key (semester, year, sectionID, courseName),"
+                     "foreign key (semester, year, sectionID, courseName) "
+                     "references coursesections (semester, year, sectionID, courseName))")
 
     mycursor.execute("create table IF NOT EXISTS goalGrades (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, goalID int "
                      "not null, goalGrade varchar(25), constraint goalGrades_pk primary key "
-                     "(semester, year, sectionID, courseName, goalID))")
+                     "(semester, year, sectionID, courseName, goalID),"
+                     "foreign key (semester, year, sectionID, courseName) "
+                     "references coursesections (semester, year, sectionID, courseName))")
