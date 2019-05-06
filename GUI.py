@@ -7,6 +7,9 @@ from Curriculum import *
 LARGE_FONT = ("Verdana", 12)
 CURRICULUMS = []
 COURSES = []
+HOURS = 0
+TEMPHOURS = 0
+CURRICULUM = ""
 
 
 def updatecurriculums():
@@ -136,6 +139,10 @@ class InsertCurriculumPage(tk.Frame):
             self.maxunitstext.delete(0, 'end')
             self.coveragetext.delete(0, 'end')
             self.numgoalstext.delete(0, 'end')
+            global HOURS
+            global CURRICULUM
+            HOURS = totcred
+            CURRICULUM = name
             array = [name, id, headname, totcred, maxunits, coverage, numgoals]
             insertcurriculum(array)
             if self.errorlabel.winfo_ismapped():
@@ -143,7 +150,7 @@ class InsertCurriculumPage(tk.Frame):
             if self.coveragerror.winfo_ismapped():
                 self.coveragerror.pack_forget()
             updatecurriculums()
-            controller.show_frame(StartPage)
+            controller.show_frame(InsertCoursePage)
 
     def backtostart(self, controller):
         self.nametext.delete(0, 'end')
@@ -277,7 +284,6 @@ class CurriculumDashboardPage(tk.Frame):
             headnames[x] = tk.Label(self, text="Head Name: " + headname[0][0])
             headnames[x].pack()
             reqandopt = getrequiredcount(CURRICULUMS[x])
-            print(reqandopt)
             required[x] = tk.Label(self, text="Required Courses: " + str(reqandopt[0][0]))
             optional[x] = tk.Label(self, text="Optional Courses: " + str(reqandopt[1][0]))
             required[x].pack()
@@ -394,9 +400,9 @@ class SearchCoursePage(tk.Frame):
         controller.show_frame(StartPage)
 
     def updatecourselist(self):
-        global COURSE
+        global COURSES
         self.course.pack_forget()
-        self.course = ttk.Combobox(self, values=COURSE)
+        self.course = ttk.Combobox(self, values=COURSES)
         self.course.pack()
 
 
@@ -413,8 +419,6 @@ class InsertCoursePage(tk.Frame):
         labelCDesc = tk.Label(self, text="Description")
 
         insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
-        button = tk.Button(self, text="Back to Start Page",
-                           command=lambda: self.backtostart(controller))
 
         vcmd = (self.register(self.validateint))
         self.nametext = tk.Entry(self)
@@ -422,6 +426,8 @@ class InsertCoursePage(tk.Frame):
         self.coursenumtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.hourstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.desctext = tk.Text(self)
+        self.var = tk.IntVar()
+        self.optional = tk.Checkbutton(self, text="Optional", variable=self.var)
 
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
 
@@ -435,8 +441,8 @@ class InsertCoursePage(tk.Frame):
         self.hourstext.pack()
         labelCDesc.pack()
         self.desctext.pack()
+        self.optional.pack()
         insert.pack(side=tk.BOTTOM)
-        button.pack(side=tk.BOTTOM)
 
     def insertpressed(self, controller):
         name = self.nametext.get()
@@ -448,19 +454,31 @@ class InsertCoursePage(tk.Frame):
         if not name or not code or not coursenum or not hours or not desc:
             self.errorlabel.pack()
         else:
+            self.nametext.delete(0, 'end')
+            self.codetext.delete(0, 'end')
+            self.coursenumtext.delete(0, 'end')
+            self.hourstext.delete(0, 'end')
+            self.desctext.delete('1.0', 'end')
+            global TEMPHOURS
+            global HOURS
+            global CURRICULUM
+            TEMPHOURS += int(hours)
             array = [name, code, coursenum, hours, desc]
-            print(array)
             insertcourse(array)
+
+            currcourse = [CURRICULUM, name, self.var.get()]
+            insertcurriculumcourses(currcourse)
             if self.errorlabel.winfo_ismapped():
                 self.errorlabel.pack_forget()
-            controller.show_frame(StartPage)
+            if int(TEMPHOURS) >= int(HOURS):
+                controller.show_frame(StartPage)
 
     def backtostart(self, controller):
         self.nametext.delete(0, 'end')
         self.codetext.delete(0, 'end')
         self.coursenumtext.delete(0, 'end')
         self.hourstext.delete(0, 'end')
-        self.desctext.delete(0, 'end')
+        self.desctext.delete('1.0', 'end')
         if self.errorlabel.winfo_ismapped():
             self.errorlabel.pack_forget()
         controller.show_frame(StartPage)
@@ -481,20 +499,61 @@ class SearchCourseByCurriculumPage(tk.Frame):
         labelCurr = tk.Label(self, text="Curriculum")
         labelCourse = tk.Label(self, text="Course")
 
-        curriculum = ttk.Combobox(self, values=["Test", "Test2", "Testetc"])
-        curriculum.current(0)
-        course = ttk.Combobox(self, values=["Test", "Test2", "Testetc"])
-        course.current(0)
-        button1 = tk.Button(self, text="Search")
+        self.labelname = tk.Label(self)
+        self.labelcode = tk.Label(self)
+        self.labelnum = tk.Label(self)
+        self.labelhours = tk.Label(self)
+        self.labeldesc = tk.Label(self)
+
+        global CURRICULUMS
+        global COURSES
+        self.curriculum = ttk.Combobox(self, values=CURRICULUMS)
+        self.course = ttk.Combobox(self, values=COURSES)
+        button1 = tk.Button(self, text="Search", command=lambda: self.searchpressed())
         button2 = tk.Button(self, text="Back to Start Page",
-                            command=lambda: controller.show_frame(StartPage))
+                            command=lambda: self.backtostart(controller))
 
         labelCurr.pack(side=tk.TOP)
-        curriculum.pack(side=tk.TOP)
+        self.curriculum.pack(side=tk.TOP)
         labelCourse.pack(side=tk.TOP)
-        course.pack(side=tk.TOP)
+        self.course.pack(side=tk.TOP)
         button1.pack(side=tk.BOTTOM)
         button2.pack(side=tk.BOTTOM)
+
+    def searchpressed(self):
+        coursename = getcurriculumcourse(self.curriculum.get(), self.course.get())[0]
+        print(coursename[0])
+        course = getcourse(coursename[1])[0]
+        print(course)
+
+        if self.labelname.winfo_ismapped():
+            self.labelname.pack_forget()
+            self.labelcode.pack_forget()
+            self.labelnum.pack_forget()
+            self.labelhours.pack_forget()
+            self.labeldesc.pack_forget()
+
+        self.labelname = tk.Label(self, text="Name: " + course[0])
+        self.labelcode = tk.Label(self, text="Sub Code: " + course[1])
+        self.labelnum = tk.Label(self, text="Course Number: " + str(course[2]))
+        self.labelhours = tk.Label(self, text="Credit Hours: " + str(course[3]))
+        self.labeldesc = tk.Label(self, text="Description: " + course[4])
+
+        self.labelname.pack()
+        self.labelcode.pack()
+        self.labelnum.pack()
+        self.labelhours.pack()
+        self.labeldesc.pack()
+
+    def backtostart(self, controller):
+        if self.labelname.winfo_ismapped():
+            self.labelname.pack_forget()
+            self.labelcode.pack_forget()
+            self.labelnum.pack_forget()
+            self.labelhours.pack_forget()
+            self.labeldesc.pack_forget()
+
+        controller.show_frame(StartPage)
 
 
 class StartPage(tk.Frame):
