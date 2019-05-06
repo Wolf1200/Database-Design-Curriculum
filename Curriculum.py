@@ -679,12 +679,15 @@ def getallcoursestopics(currname):
 def initdatabase():
     # Open DB connection
     global mydb
-    mydb = mysql.connector.connect(user='testUser', password='SicEmBears',
-                                   host='127.0.0.1')
+    mydb = mysql.connector.connect(user='root', password='', host='127.0.0.1')
     global mycursor
     mycursor = mydb.cursor()
 
     mycursor.execute("CREATE DATABASE IF NOT EXISTS Curriculum")
+
+    mycursor.execute("CREATE USER IF NOT EXISTS testUser IDENTIFIED BY 'SicEmBears';")
+    mycursor.execute("use curriculum")
+    mycursor.execute("GRANT all on curriculum to testUser")
 
     mydb = mysql.connector.connect(user='testUser', password='SicEmBears',
                                    host='127.0.0.1', database='Curriculum')
