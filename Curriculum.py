@@ -10,8 +10,8 @@ results = ""
 def getrequiredcount(currname):
     # Define variables
     global mycursor
-    query = "select count(*) from courses a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
-            " and b.subCode = a.subCode and b.courseNumber = a.courseNumber and b.optional='true'"
+    query = "select count(*) from course a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
+            " and b.courseName = a.name and b.optional='false'"
 
     # Execute query for count of required
     mycursor.execute(query)
@@ -23,8 +23,8 @@ def getrequiredcount(currname):
     reqcount = res[0]
 
     # Query for getting count of optional courses in curriculum
-    query = "select count(*) from courses a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
-            " and b.subCode = a.subCode and b.courseNumber = a.courseNumber and b.optional='false'"
+    query = "select count(*) from course a, curriculum.curriculumcourses b where b.curriculumName='" + currname + "'" \
+            " and b.courseName = a.name and b.optional='true'"
 
     # Execute query for count of optional
     mycursor.execute(query)
@@ -36,7 +36,7 @@ def getrequiredcount(currname):
     opcount = res[0]
 
     # Make a set to return counts
-    retset = {reqcount, opcount}
+    retset = [reqcount, opcount]
 
     return retset
 
@@ -45,16 +45,36 @@ def getrequiredcount(currname):
 def getrangecourses(currname, startsem, endsem, startyear, endyear):
     # Define variables
     global mycursor
-    query = "select * from course a, curriculum.curriculumcourse b, curriculum.coursesections c where " \
-            "b.curriculumName='" + currname + "' and b.subCode = a.subCode and b.courseNumber = a.courseNumber and " \
-            "c.subCode = a.subCode and c.courseNumber = a.courseNumber and c.semester between '" + startsem + "' and " \
-            "'" + endsem + "' and c.year between '" + startyear + "' and '" + endyear + "' order by c.year"
+    query = "select a.name, c.semester, c.year from course a, curriculum.curriculumcourse b, curriculum.coursesections c where " \
+            "b.curriculumName='" + currname + "' and b.courseName = a.name and " \
+            "c.courseName = a.name and c.year between '" + startyear + "' and '" + endyear + "' order by c.year"
 
     # Execute query
     mycursor.execute(query)
 
+    betweenyears = mycursor.fetchall()
+    validcourses = [None] * len(betweenyears)
+    i = 0
+    for course in betweenyears:
+        if course[2] == startyear:
+            if startsem == "Fall":
+                if course[1] == "Fall":
+                    validcourses[i] = course
+            else:
+                validcourses[i] = course
+        elif course[2] == endyear:
+            if endsem == "Spring":
+                if course[1] == "Spring":
+                    validcourses[i] = course
+            else:
+                validcourses[i] = course
+        else:
+            validcourses[i] = course
+
+        i += 1
+
     # Return result set
-    return mycursor.fetchall()
+    return validcourses
 
 
 # Function to insert curriculum
@@ -63,8 +83,8 @@ def insertcurriculum(array):
     global mydb
     global mycursor
 
-    query = "insert into curriculum (name, headID, totCredits, maxUnits, coverage, numGoals) values " \
-            "(%s, %s, %s, %s, %s, %s)"
+    query = "insert into curriculum (name, headID, headName, totCredits, maxUnits, coverage, numGoals) values " \
+            "(%s, %s, %s, %s, %s, %s, %s)"
 
     # Execute query and commit db
     mycursor.execute(query, array)
@@ -657,7 +677,7 @@ def initdatabase():
                      "not null, primary key (id, curriculum),"
                      "foreign key (curriculum) references curriculum (name))")
 
-    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null, subCode varchar(25) not null, "
+    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, subCode varchar(25) not null, "
                      "courseNumber int not null, creditHours int, description text, constraint course_pk "
                      "primary key (name, subCode, courseNumber))")
 
