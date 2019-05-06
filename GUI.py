@@ -196,6 +196,8 @@ class SearchCurriculumPage(tk.Frame):
         self.labelmaxCUnits = tk.Label(self)
         self.labelCCoverage = tk.Label(self)
         self.labelCNumGoals = tk.Label(self)
+        self.labelCTopics = tk.Label(self)
+        self.labelCCourses = tk.Label(self)
 
         global CURRICULUMS
         self.curriculum = ttk.Combobox(self, values=CURRICULUMS)
@@ -219,6 +221,16 @@ class SearchCurriculumPage(tk.Frame):
         coverage = info[5]
         numGoals = info[6]
 
+        temptopics = getcurriculumtopics(self.curriculum.get())
+        topics = ""
+        for topic in temptopics:
+            topics += str(topic[0]) + "\n"
+
+        tempcourses = getcurriculumcourses(self.curriculum.get())
+        courses = ""
+        for course in tempcourses:
+            courses += course[0] + "\n"
+
         if self.labelCName.winfo_ismapped():
             self.labelCName.pack_forget()
             self.labelCID.pack_forget()
@@ -227,6 +239,8 @@ class SearchCurriculumPage(tk.Frame):
             self.labelmaxCUnits.pack_forget()
             self.labelCCoverage.pack_forget()
             self.labelCNumGoals.pack_forget()
+            self.labelCTopics.pack_forget()
+            self.labelCCourses.pack_forget()
 
         self.labelCName = tk.Label(self, text="Name: " + name)
         self.labelCID = tk.Label(self, text="Head ID: " + str(headID))
@@ -235,6 +249,8 @@ class SearchCurriculumPage(tk.Frame):
         self.labelmaxCUnits = tk.Label(self, text="Max Units: " + str(maxUnits))
         self.labelCCoverage = tk.Label(self, text="Coverage: " + coverage)
         self.labelCNumGoals = tk.Label(self, text="Number of Goals: " + str(numGoals))
+        self.labelCTopics = tk.Label(self, text="Topics:\n" + topics)
+        self.labelCCourses = tk.Label(self, text="Courses:\n" + courses)
 
         self.labelCName.pack()
         self.labelCID.pack()
@@ -242,14 +258,19 @@ class SearchCurriculumPage(tk.Frame):
         self.labelmaxCUnits.pack()
         self.labelCCoverage.pack()
         self.labelCNumGoals.pack()
+        self.labelCTopics.pack()
+        self.labelCCourses.pack()
 
     def gotostartpage(self, controller):
-        self.labelCName.pack_forget()
-        self.labelCID.pack_forget()
-        self.labelCCred.pack_forget()
-        self.labelmaxCUnits.pack_forget()
-        self.labelCCoverage.pack_forget()
-        self.labelCNumGoals.pack_forget()
+        if self.labelCName.winfo_ismapped():
+            self.labelCName.pack_forget()
+            self.labelCID.pack_forget()
+            self.labelCCred.pack_forget()
+            self.labelmaxCUnits.pack_forget()
+            self.labelCCoverage.pack_forget()
+            self.labelCNumGoals.pack_forget()
+            self.labelCTopics.pack_forget()
+            self.labelCCourses.pack_forget()
         controller.show_frame(StartPage)
 
     def updatecurrlist(self):
@@ -311,8 +332,8 @@ class CurriculumSemesterRangeSearch(tk.Frame):
         global CURRICULUMS
         years = getyears()
         curriculum = ttk.Combobox(self, values=CURRICULUMS)
-        semesterStart = ttk.Combobox(self, values=["Spring", "Fall"])
-        semesterEnd = ttk.Combobox(self, values=["Spring", "Fall"])
+        semesterStart = ttk.Combobox(self, values=["Spring", "Summer", "Fall", "Winter"])
+        semesterEnd = ttk.Combobox(self, values=["Spring", "Summer", "Fall", "Winter"])
         yearStart = ttk.Combobox(self, values=years)
         yearEnd = ttk.Combobox(self, values=years)
         button1 = tk.Button(self, text="Search")
@@ -349,6 +370,7 @@ class SearchCoursePage(tk.Frame):
         self.labelCNum = tk.Label(self)
         self.labelCHours = tk.Label(self)
         self.labelCDesc = tk.Label(self)
+        self.labelCCurriculum = tk.Label(self)
 
         updatecourses()
 
@@ -372,31 +394,41 @@ class SearchCoursePage(tk.Frame):
         hours = info[3]
         desc = info[4]
 
+        tempcurric = getcoursecurriculum(self.course.get())
+        curriculum = ""
+        for curric in tempcurric:
+            curriculum += curric[0] + "\n"
+
         if self.labelCName.winfo_ismapped():
             self.labelCName.pack_forget()
             self.labelCCode.pack_forget()
             self.labelCNum.pack_forget()
             self.labelCHours.pack_forget()
             self.labelCDesc.pack_forget()
+            self.labelCCurriculum.pack_forget()
 
         self.labelCName = tk.Label(self, text="Name: " + name)
-        self.labelCCode = tk.Label(self, text="Head ID: " + code)
-        self.labelCNum = tk.Label(self, text="Total Credits: " + str(num))
-        self.labelCHours = tk.Label(self, text="Max Units: " + str(hours))
-        self.labelCDesc = tk.Label(self, text="Coverage: " + desc)
+        self.labelCCode = tk.Label(self, text="Course Code: " + code)
+        self.labelCNum = tk.Label(self, text="Course Number: " + str(num))
+        self.labelCHours = tk.Label(self, text="Credit Hours: " + str(hours))
+        self.labelCDesc = tk.Label(self, text="Description: " + desc)
+        self.labelCCurriculum = tk.Label(self, text="Curriculum:\n" + curriculum)
 
         self.labelCName.pack()
         self.labelCCode.pack()
         self.labelCNum.pack()
         self.labelCHours.pack()
         self.labelCDesc.pack()
+        self.labelCCurriculum.pack()
 
     def gotostartpage(self, controller):
-        self.labelCName.pack_forget()
-        self.labelCCode.pack_forget()
-        self.labelCNum.pack_forget()
-        self.labelCHours.pack_forget()
-        self.labelCDesc.pack_forget()
+        if self.labelCName.winfo_ismapped():
+            self.labelCName.pack_forget()
+            self.labelCCode.pack_forget()
+            self.labelCNum.pack_forget()
+            self.labelCHours.pack_forget()
+            self.labelCDesc.pack_forget()
+            self.labelCCurriculum.pack_forget()
         controller.show_frame(StartPage)
 
     def updatecourselist(self):

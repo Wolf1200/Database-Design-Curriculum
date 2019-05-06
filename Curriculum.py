@@ -77,6 +77,13 @@ def getrangecourses(currname, startsem, endsem, startyear, endyear):
     return validcourses
 
 
+def getcurriculumcourses(curr):
+    global mycursor
+    query = "select courseName from curriculumcourses where curriculumName = '" + curr + "'"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
 def getyears():
     global mycursor
     query = "select year from coursesections group by year"
@@ -152,6 +159,15 @@ def getcurrentcourses():
 
     ret = mycursor.fetchall()
     return ret
+
+
+def getcoursecurriculum(course):
+    global mycursor
+    query = "select curriculumName from curriculumcourses where courseName = '" + course + "'"
+
+    mycursor.execute(query)
+
+    return mycursor.fetchall()
 
 
 # Function to insert course
@@ -241,6 +257,14 @@ def gettopic(topicid):
     mycursor.execute(query)
 
     # Return result set
+    return mycursor.fetchall()
+
+
+def getcurriculumtopics(curr):
+    global mycursor
+    query = "select topicID from curriculumtopics where curriculumName = '" + curr + "'"
+    mycursor.execute(query)
+
     return mycursor.fetchall()
 
 
@@ -397,7 +421,7 @@ def insertcurriculumtopics(array):
 
 
 # Function to get Curriculum/Topics
-def getcurriculumtopics(currname, topicid):
+def getcurriculumtopic(currname, topicid):
     # Define variables
     global mycursor
     query = "select * from curriculumtopics where curriculumName='" + currname + "' and topicID='" + topicid + "'"
