@@ -32,6 +32,12 @@ def getcurriculum(name):
     # Return result set
     return mycursor.fetchall()
 
+def getcurriculumhead(curriculum):
+    global mycursor
+    query = "select headName from curriculum where name = '" + curriculum + "'"
+    mycursor.execute(query)
+
+    return mycursor.fetchall()
 
 def getcurrentcurriculums():
     global mycursor
