@@ -41,6 +41,22 @@ def getrequiredcount(currname):
     return retset
 
 
+# Function to get a list of courses in a range
+def getrangecourses(currname, startsem, endsem, startyear, endyear):
+    # Define variables
+    global mycursor
+    query = "select * from course a, curriculum.curriculumcourse b, curriculum.coursesections c where " \
+            "b.curriculumName='" + currname + "' and b.subCode = a.subCode and b.courseNumber = a.courseNumber and " \
+            "c.subCode = a.subCode and c.courseNumber = a.courseNumber and c.semester between '" + startsem + "' and " \
+            "'" + endsem + "' and c.year between '" + startyear + "' and '" + endyear + "' order by c.year"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
 # Function to insert curriculum
 def insertcurriculum(array):
     # Define variables
