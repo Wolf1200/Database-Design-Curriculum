@@ -49,7 +49,7 @@ class DatabaseGUI(tk.Tk):
         for F in (StartPage, SearchCurriculumPage, SearchCoursePage,
                   SearchCourseByCurriculumPage, CurriculumSemesterRangeSearch,
                   CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage,
-                  InsertTopicPage):
+                  InsertTopicPage, InsertStudentGrades):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -828,6 +828,194 @@ class InsertTopicPage(tk.Frame):
             return False
 
 
+class InsertStudentGrades(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        vcmd = (self.register(self.validateint))
+        self.limitvalue = tk.StringVar()
+        self.limitvalue.trace('w', self.limitsize)
+
+        semesterlabel = tk.Label(self, text="Semester")
+        self.semesterbox = ttk.Combobox(self, values=["Spring", "Summer", "Fall", "Winter"])
+        yearlabel = tk.Label(self, text="Year")
+        self.yearentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        sectionidlabel = tk.Label(self, text="Section ID")
+        self.sectionidentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'), textvariable=self.limitvalue)
+        coursenamelabel = tk.Label(self, text="Course Name")
+        self.coursenameentry = tk.Entry(self)
+
+        apluslabel = tk.Label(self, text="Number of A Plus")
+        alabel = tk.Label(self, text="Number of A")
+        aminuslabel = tk.Label(self, text="Number of A Minus")
+        bpluslabel = tk.Label(self, text="Number of B Plus")
+        blabel = tk.Label(self, text="Number of B")
+        bminuslabel = tk.Label(self, text="Number of B Minus")
+        cpluslabel = tk.Label(self, text="Number of C Plus")
+        clabel = tk.Label(self, text="Number of C")
+        cminuslabel = tk.Label(self, text="Number of C Minus")
+        dpluslabel = tk.Label(self, text="Number of D Plus")
+        dlabel = tk.Label(self, text="Number of D")
+        dminuslabel = tk.Label(self, text="Number of D Minus")
+        flabel = tk.Label(self, text="Number of F")
+        wlabel = tk.Label(self, text="Number of Withdrawal")
+        ilabel = tk.Label(self, text="Number of I")
+
+        self.aplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.bplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.cplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.dplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.aminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.bminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.cminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.dminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.aentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.bentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.centry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.dentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.fentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.wentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.ientry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+
+        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank")
+
+        semesterlabel.pack()
+        self.semesterbox.pack()
+        yearlabel.pack()
+        self.yearentry.pack()
+        sectionidlabel.pack()
+        self.sectionidentry.pack()
+        coursenamelabel.pack()
+        self.coursenameentry.pack()
+
+        apluslabel.pack()
+        self.aplusentry.pack()
+        alabel.pack()
+        self.aentry.pack()
+        aminuslabel.pack()
+        self.aminusentry.pack()
+        bpluslabel.pack()
+        self.bplusentry.pack()
+        blabel.pack()
+        self.bentry.pack()
+        bminuslabel.pack()
+        self.bminusentry.pack()
+        cpluslabel.pack()
+        self.cplusentry.pack()
+        clabel.pack()
+        self.centry.pack()
+        cminuslabel.pack()
+        self.cminusentry.pack()
+        dpluslabel.pack()
+        self.dplusentry.pack()
+        dlabel.pack()
+        self.dentry.pack()
+        dminuslabel.pack()
+        self.dminusentry.pack()
+        flabel.pack()
+        self.fentry.pack()
+        wlabel.pack()
+        self.wentry.pack()
+        ilabel.pack()
+        self.ientry.pack()
+
+        insert.pack(side=tk.BOTTOM)
+        button.pack(side=tk.BOTTOM)
+
+    def insertpressed(self, controller):
+        semester = self.semesterbox.get()
+        year = self.yearentry.get()
+        sectionid = self.sectionidentry.get()
+        coursename = self.coursenameentry.get()
+        aplus = self.aplusentry.get()
+        a = self.aentry.get()
+        aminus = self.aminusentry.get()
+        bplus = self.bplusentry.get()
+        b = self.bentry.get()
+        bminus = self.bminusentry.get()
+        cplus = self.cplusentry.get()
+        c = self.centry.get()
+        cminus = self.cminusentry.get()
+        dplus = self.dplusentry.get()
+        d = self.dentry.get()
+        dminus = self.dminusentry.get()
+        f = self.fentry.get()
+        withdraw = self.wentry.get()
+        i = self.ientry.get()
+
+        if (not semester or not year or not sectionid or not coursename or not aplus or not a
+                or not aminus or not bplus or not b or not bminus or not cplus or not c or not cminus
+                or not dplus or not d or not dminus or not f or not withdraw or not i):
+            self.errorlabel.pack()
+        else:
+            enrolled = (int(aplus) + int(a) + int(aminus) + int(bplus) + int(b) + int(bminus) + int(cplus) + int(c) +
+                        int(cminus) + int(dplus) + int(d) + int(dminus) + int(f) + int(withdraw) + int(i))
+            array = [semester, year, sectionid, enrolled, "", ""]
+            insertcoursesections(array)
+            array = [semester, year, sectionid, coursename, aplus, a, aminus, bplus, b, bminus, cplus,
+                     c, cminus, dplus, d, dminus, f, withdraw, i]
+            insertstudentgrades(array)
+
+            self.yearentry.delete(0, 'end')
+            self.sectionidentry.delete(0, 'end')
+            self.coursenameentry.delete(0, 'end')
+            self.aplusentry.delete(0, 'end')
+            self.aentry.delete(0, 'end')
+            self.aminusentry.delete(0, 'end')
+            self.bplusentry.delete(0, 'end')
+            self.bentry.delete(0, 'end')
+            self.bminusentry.delete(0, 'end')
+            self.cplusentry.delete(0, 'end')
+            self.centry.delete(0, 'end')
+            self.cminusentry.delete(0, 'end')
+            self.dplusentry.delete(0, 'end')
+            self.dentry.delete(0, 'end')
+            self.dminusentry.delete(0, 'end')
+            self.fentry.delete(0, 'end')
+            self.wentry.delete(0, 'end')
+            self.ientry.delete(0, 'end')
+
+            controller.show_frame(StartPage)
+
+    def backtostart(self, controller):
+        self.yearentry.delete(0, 'end')
+        self.sectionidentry.delete(0, 'end')
+        self.coursenameentry.delete(0, 'end')
+        self.aplusentry.delete(0, 'end')
+        self.aentry.delete(0, 'end')
+        self.aminusentry.delete(0, 'end')
+        self.bplusentry.delete(0, 'end')
+        self.bentry.delete(0, 'end')
+        self.bminusentry.delete(0, 'end')
+        self.cplusentry.delete(0, 'end')
+        self.centry.delete(0, 'end')
+        self.cminusentry.delete(0, 'end')
+        self.dplusentry.delete(0, 'end')
+        self.dentry.delete(0, 'end')
+        self.dminusentry.delete(0, 'end')
+        self.fentry.delete(0, 'end')
+        self.wentry.delete(0, 'end')
+        self.ientry.delete(0, 'end')
+
+        controller.show_frame(StartPage)
+
+    def limitsize(self, *args):
+        value = self.limitvalue.get()
+        if len(value) > 3:
+            self.limitvalue.set(value[:3])
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
+
+
 class StartPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -850,6 +1038,8 @@ class StartPage(tk.Frame):
                             controller.show_frame(InsertCurriculumPage))
         button7 = tk.Button(self, text="Insert Curriculum Topic", command=lambda:
                             controller.show_frame(InsertTopicPage))
+        button8 = tk.Button(self, text="Insert Student Grades", command=lambda:
+                            controller.show_frame(InsertStudentGrades))
 
         button1.pack()
         button2.pack()
@@ -858,3 +1048,4 @@ class StartPage(tk.Frame):
         button5.pack()
         button6.pack()
         button7.pack()
+        button8.pack()
