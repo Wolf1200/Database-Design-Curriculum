@@ -261,8 +261,8 @@ class CurriculumDashboardPage(tk.Frame):
         size = len(CURRICULUMS)
         names = [tk.Label(self)] * size
         headnames = [tk.Label(self)] * size
-        level = [tk.Label(self)] * size
-        goalvalid = [tk.Label(self)] * size
+        required = [tk.Label(self)] * size
+        optional = [tk.Label(self)] * size
         coverage = [tk.Label(self)] * size
 
         canvas = Canvas(self)
@@ -276,6 +276,12 @@ class CurriculumDashboardPage(tk.Frame):
             headname = getcurriculumhead(CURRICULUMS[x])
             headnames[x] = tk.Label(self, text="Head Name: " + headname[0][0])
             headnames[x].pack()
+            reqandopt = getrequiredcount(CURRICULUMS[x])
+            print(reqandopt)
+            required[x] = tk.Label(self, text="Required Courses: " + str(reqandopt[0][0]))
+            optional[x] = tk.Label(self, text="Optional Courses: " + str(reqandopt[1][0]))
+            required[x].pack()
+            optional[x].pack()
 
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: controller.show_frame(StartPage))
