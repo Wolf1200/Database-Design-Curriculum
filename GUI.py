@@ -302,16 +302,13 @@ class CurriculumSemesterRangeSearch(tk.Frame):
         labelSemester1 = tk.Label(self, text="Semester Start")
         labelSemester2 = tk.Label(self, text="Semester Start")
 
-        curriculum = ttk.Combobox(self, values=["CS", "MTH", "PHY"])
-        curriculum.current(0)
+        global CURRICULUMS
+        years = getyears()
+        curriculum = ttk.Combobox(self, values=CURRICULUMS)
         semesterStart = ttk.Combobox(self, values=["Spring", "Fall"])
-        semesterStart.current(0)
         semesterEnd = ttk.Combobox(self, values=["Spring", "Fall"])
-        semesterEnd.current(0)
-        yearStart = ttk.Combobox(self, values=["2016", "2017", "2018"])
-        yearStart.current(0)
-        yearEnd = ttk.Combobox(self, values=["2016", "2017", "2018"])
-        yearEnd.current(0)
+        yearStart = ttk.Combobox(self, values=years)
+        yearEnd = ttk.Combobox(self, values=years)
         button1 = tk.Button(self, text="Search")
         button2 = tk.Button(self, text="Back to Start Page",
                             command=lambda: controller.show_frame(StartPage))
