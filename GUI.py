@@ -40,6 +40,8 @@ class DatabaseGUI(tk.Tk):
         container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
+        updatecourses()
+        updatecurriculums()
 
         for F in (StartPage, SearchCurriculumPage, SearchCoursePage,
                   SearchCourseByCurriculumPage, CurriculumSemesterRangeSearch,
@@ -85,6 +87,9 @@ class InsertCurriculumPage(tk.Frame):
         self.numgoalstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
 
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+        self.coveragerror = tk.Label(self, text="Incorrect value entered for "
+                                              "Coverage. Valid values are Extensive, Inclusive, Basic-plus, Basic, "
+                                              "Unsatisfactory, or Substandard", fg='red')
 
         labelCName.pack()
         self.nametext.pack()
@@ -113,7 +118,14 @@ class InsertCurriculumPage(tk.Frame):
         numgoals = self.numgoalstext.get()
 
         if not name or not id or not headname or not totcred or not maxunits or not coverage or not numgoals:
+            if self.coveragerror.winfo_ismapped():
+                self.coveragerror.pack_forget()
             self.errorlabel.pack()
+        elif (coverage != "Extensive" and coverage != "Inclusive" and coverage != "Basic-plus" and coverage != "Basic"
+              and coverage != "Unsatisfactory" and coverage != "Substandard"):
+            if self.errorlabel.winfo_ismapped():
+                self.errorlabel.pack_forget()
+            self.coveragerror.pack()
         else:
             self.nametext.delete(0, 'end')
             self.headidtext.delete(0, 'end')
@@ -126,6 +138,8 @@ class InsertCurriculumPage(tk.Frame):
             insertcurriculum(array)
             if self.errorlabel.winfo_ismapped():
                 self.errorlabel.pack_forget()
+            if self.coveragerror.winfo_ismapped():
+                self.coveragerror.pack_forget()
             controller.show_frame(StartPage)
             updatecurriculums()
 
@@ -234,15 +248,29 @@ class CurriculumDashboardPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Curriculum Dashboard", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
+        global CURRICULUMS
+        size = len(CURRICULUMS)
+        names = [tk.Label(self)] * size
+        headnames = [tk.Label(self)] * size
+        level = [tk.Label(self)] * size
+        goalvalid = [tk.Label(self)] * size
+        coverage = [tk.Label(self)] * size
 
         canvas = Canvas(self)
         scrollbar = Scrollbar(self, orient="vertical", command=canvas.yview)
         canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+
+        for x in range(0, size):
+            names[x] = tk.Label(self, text="Name: " + CURRICULUMS[x])
+            names[x].pack()
+            headname = getcurriculumhead(CURRICULUMS[x])
+            print(headname)
+            headnames[x] = tk.Label(self, text="Head Name: " + headname)
 
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: controller.show_frame(StartPage))
 
-        scrollbar.pack(side="right", fill="y")
         button.pack(side=tk.BOTTOM)
 
 
@@ -304,14 +332,10 @@ class SearchCoursePage(tk.Frame):
         self.labelCHours = tk.Label(self)
         self.labelCDesc = tk.Label(self)
 
-        coursestemp = getcurrentcourses()
-        courses = [None] * len(coursestemp)
-        i = 0
-        for curr in coursestemp:
-            courses[i] = curr[0]
-            i += 1
+        updatecourses()
 
-        self.course = ttk.Combobox(self, values=courses)
+        global COURSES
+        self.course = ttk.Combobox(self, values=COURSES)
         button1 = tk.Button(self, text="Search", command=lambda: self.getinfo())
         button2 = tk.Button(self, text="Back to Start Page",
                             command=lambda: self.gotostartpage(controller))
@@ -356,6 +380,12 @@ class SearchCoursePage(tk.Frame):
         self.labelCHours.pack_forget()
         self.labelCDesc.pack_forget()
         controller.show_frame(StartPage)
+
+    def updatecourselist(self):
+        global COURSE
+        self.course.pack_forget()
+        self.course = ttk.Combobox(self, values=COURSE)
+        self.course.pack()
 
 
 class InsertCoursePage(tk.Frame):
@@ -470,8 +500,8 @@ class StartPage(tk.Frame):
                             controller.show_frame(CurriculumDashboardPage))
         button6 = tk.Button(self, text="Insert Curriculum", command=lambda:
                             controller.show_frame(InsertCurriculumPage))
-        button7 = tk.Button(self, text="Insert Course", command=lambda:
-                            controller.show_frame(InsertCoursePage))
+        # button7 = tk.Button(self, text="Insert Course", command=lambda:
+        #                    controller.show_frame(InsertCoursePage))
 
         button1.pack()
         button2.pack()
@@ -479,4 +509,4 @@ class StartPage(tk.Frame):
         button4.pack()
         button5.pack()
         button6.pack()
-        button7.pack()
+        #button7.pack()
