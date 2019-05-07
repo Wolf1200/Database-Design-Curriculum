@@ -58,9 +58,9 @@ class DatabaseGUI(tk.Tk):
 
     def show_frame(self, cont):
         frame = self.frames[cont]
-        if cont == SearchCurriculumPage:
+        if cont == SearchCurriculumPage or cont == InsertGoalPage:
             frame.updatecurrlist()
-        if cont == SearchCoursePage:
+        if cont == SearchCoursePage or cont == InsertStudentGrades:
             frame.updatecourselist()
         frame.tkraise()
 
@@ -833,35 +833,36 @@ class InsertStudentGrades(tk.Frame):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
+        global COURSES
 
         vcmd = (self.register(self.validateint))
         self.limitvalue = tk.StringVar()
         self.limitvalue.trace('w', self.limitsize)
 
-        semesterlabel = tk.Label(self, text="Semester")
+        self.semesterlabel = tk.Label(self, text="Semester")
         self.semesterbox = ttk.Combobox(self, values=["Spring", "Summer", "Fall", "Winter"])
-        yearlabel = tk.Label(self, text="Year")
+        self.yearlabel = tk.Label(self, text="Year")
         self.yearentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        sectionidlabel = tk.Label(self, text="Section ID")
+        self.sectionidlabel = tk.Label(self, text="Section ID")
         self.sectionidentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'), textvariable=self.limitvalue)
-        coursenamelabel = tk.Label(self, text="Course Name")
-        self.coursenameentry = tk.Entry(self)
+        self.coursenamelabel = tk.Label(self, text="Course Name")
+        self.coursenamebox = ttk.Combobox(self, values=COURSES)
 
-        apluslabel = tk.Label(self, text="Number of A Plus")
-        alabel = tk.Label(self, text="Number of A")
-        aminuslabel = tk.Label(self, text="Number of A Minus")
-        bpluslabel = tk.Label(self, text="Number of B Plus")
-        blabel = tk.Label(self, text="Number of B")
-        bminuslabel = tk.Label(self, text="Number of B Minus")
-        cpluslabel = tk.Label(self, text="Number of C Plus")
-        clabel = tk.Label(self, text="Number of C")
-        cminuslabel = tk.Label(self, text="Number of C Minus")
-        dpluslabel = tk.Label(self, text="Number of D Plus")
-        dlabel = tk.Label(self, text="Number of D")
-        dminuslabel = tk.Label(self, text="Number of D Minus")
-        flabel = tk.Label(self, text="Number of F")
-        wlabel = tk.Label(self, text="Number of Withdrawal")
-        ilabel = tk.Label(self, text="Number of I")
+        self.apluslabel = tk.Label(self, text="Number of A Plus")
+        self.alabel = tk.Label(self, text="Number of A")
+        self.aminuslabel = tk.Label(self, text="Number of A Minus")
+        self.bpluslabel = tk.Label(self, text="Number of B Plus")
+        self.blabel = tk.Label(self, text="Number of B")
+        self.bminuslabel = tk.Label(self, text="Number of B Minus")
+        self.cpluslabel = tk.Label(self, text="Number of C Plus")
+        self.clabel = tk.Label(self, text="Number of C")
+        self.cminuslabel = tk.Label(self, text="Number of C Minus")
+        self.dpluslabel = tk.Label(self, text="Number of D Plus")
+        self.dlabel = tk.Label(self, text="Number of D")
+        self.dminuslabel = tk.Label(self, text="Number of D Minus")
+        self.flabel = tk.Label(self, text="Number of F")
+        self.wlabel = tk.Label(self, text="Number of Withdrawal")
+        self.ilabel = tk.Label(self, text="Number of I")
 
         self.aplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.bplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
@@ -879,59 +880,16 @@ class InsertStudentGrades(tk.Frame):
         self.wentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         self.ientry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
-        button = tk.Button(self, text="Back to Start Page",
+        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.button = tk.Button(self, text="Back to Start Page",
                            command=lambda: self.backtostart(controller))
-        self.errorlabel = tk.Label(self, text="One or more fields were left blank")
-
-        semesterlabel.pack()
-        self.semesterbox.pack()
-        yearlabel.pack()
-        self.yearentry.pack()
-        sectionidlabel.pack()
-        self.sectionidentry.pack()
-        coursenamelabel.pack()
-        self.coursenameentry.pack()
-
-        apluslabel.pack()
-        self.aplusentry.pack()
-        alabel.pack()
-        self.aentry.pack()
-        aminuslabel.pack()
-        self.aminusentry.pack()
-        bpluslabel.pack()
-        self.bplusentry.pack()
-        blabel.pack()
-        self.bentry.pack()
-        bminuslabel.pack()
-        self.bminusentry.pack()
-        cpluslabel.pack()
-        self.cplusentry.pack()
-        clabel.pack()
-        self.centry.pack()
-        cminuslabel.pack()
-        self.cminusentry.pack()
-        dpluslabel.pack()
-        self.dplusentry.pack()
-        dlabel.pack()
-        self.dentry.pack()
-        dminuslabel.pack()
-        self.dminusentry.pack()
-        flabel.pack()
-        self.fentry.pack()
-        wlabel.pack()
-        self.wentry.pack()
-        ilabel.pack()
-        self.ientry.pack()
-
-        insert.pack(side=tk.BOTTOM)
-        button.pack(side=tk.BOTTOM)
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
 
     def insertpressed(self, controller):
         semester = self.semesterbox.get()
         year = self.yearentry.get()
         sectionid = self.sectionidentry.get()
-        coursename = self.coursenameentry.get()
+        coursename = self.coursenamebox.get()
         aplus = self.aplusentry.get()
         a = self.aentry.get()
         aminus = self.aminusentry.get()
@@ -963,7 +921,7 @@ class InsertStudentGrades(tk.Frame):
 
             self.yearentry.delete(0, 'end')
             self.sectionidentry.delete(0, 'end')
-            self.coursenameentry.delete(0, 'end')
+            self.coursenamebox.delete(0, 'end')
             self.aplusentry.delete(0, 'end')
             self.aentry.delete(0, 'end')
             self.aminusentry.delete(0, 'end')
@@ -985,7 +943,7 @@ class InsertStudentGrades(tk.Frame):
     def backtostart(self, controller):
         self.yearentry.delete(0, 'end')
         self.sectionidentry.delete(0, 'end')
-        self.coursenameentry.delete(0, 'end')
+        self.coursenamebox.delete(0, 'end')
         self.aplusentry.delete(0, 'end')
         self.aentry.delete(0, 'end')
         self.aminusentry.delete(0, 'end')
@@ -1015,11 +973,100 @@ class InsertStudentGrades(tk.Frame):
         else:
             return False
 
+    def updatecourselist(self):
+        global COURSES
+        if self.semesterlabel.winfo_ismapped():
+            self.semesterlabel.pack_forget()
+            self.semesterbox.pack_forget()
+            self.yearlabel.pack_forget()
+            self.yearentry.pack_forget()
+            self.sectionidlabel.pack_forget()
+            self.sectionidentry.pack_forget()
+            self.coursenamelabel.pack_forget()
+            self.coursenamebox.pack_forget()
+
+            self.apluslabel.pack_forget()
+            self.aplusentry.pack_forget()
+            self.alabel.pack_forget()
+            self.aentry.pack_forget()
+            self.aminuslabel.pack_forget()
+            self.aminusentry.pack_forget()
+            self.bpluslabel.pack_forget()
+            self.bplusentry.pack_forget()
+            self.blabel.pack_forget()
+            self.bentry.pack_forget()
+            self.bminuslabel.pack_forget()
+            self.bminusentry.pack_forget()
+            self.cpluslabel.pack_forget()
+            self.cplusentry.pack_forget()
+            self.clabel.pack_forget()
+            self.centry.pack_forget()
+            self.cminuslabel.pack_forget()
+            self.cminusentry.pack_forget()
+            self.dpluslabel.pack_forget()
+            self.dplusentry.pack_forget()
+            self.dlabel.pack_forget()
+            self.dentry.pack_forget()
+            self.dminuslabel.pack_forget()
+            self.dminusentry.pack_forget()
+            self.flabel.pack_forget()
+            self.fentry.pack_forget()
+            self.wlabel.pack_forget()
+            self.wentry.pack_forget()
+            self.ilabel.pack_forget()
+            self.ientry.pack_forget()
+
+            self.insert.pack_forget()
+            self.button.pack_forget()
+
+        self.semesterlabel.pack()
+        self.semesterbox.pack()
+        self.yearlabel.pack()
+        self.yearentry.pack()
+        self.sectionidlabel.pack()
+        self.sectionidentry.pack()
+        self.coursenamelabel.pack()
+        self.coursenamebox.pack()
+
+        self.apluslabel.pack()
+        self.aplusentry.pack()
+        self.alabel.pack()
+        self.aentry.pack()
+        self.aminuslabel.pack()
+        self.aminusentry.pack()
+        self.bpluslabel.pack()
+        self.bplusentry.pack()
+        self.blabel.pack()
+        self.bentry.pack()
+        self.bminuslabel.pack()
+        self.bminusentry.pack()
+        self.cpluslabel.pack()
+        self.cplusentry.pack()
+        self.clabel.pack()
+        self.centry.pack()
+        self.cminuslabel.pack()
+        self.cminusentry.pack()
+        self.dpluslabel.pack()
+        self.dplusentry.pack()
+        self.dlabel.pack()
+        self.dentry.pack()
+        self.dminuslabel.pack()
+        self.dminusentry.pack()
+        self.flabel.pack()
+        self.fentry.pack()
+        self.wlabel.pack()
+        self.wentry.pack()
+        self.ilabel.pack()
+        self.ientry.pack()
+
+        self.insert.pack(side=tk.BOTTOM)
+        self.button.pack(side=tk.BOTTOM)
+
 
 class InsertGoalPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Insert Goal Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         labelcurr = tk.Label(self, text="Curriculum")
@@ -1075,7 +1122,13 @@ class InsertGoalPage(tk.Frame):
         self.desctext.delete(1.0, 'end')
         self.identry.delete(0, 'end')
         controller.show_frame(StartPage)
-        
+
+    def updatecurrlist(self):
+        global COURSES
+        self.curriculumbox.pack_forget()
+        self.curriculumbox = ttk.Combobox(self, values=COURSES)
+        self.curriculumbox.pack()
+
 # class InsertCourseGoalPage(tk.Frame):
 #    def __init__(self, parent, controller):
 #        tk.Frame.__init__(self, parent)
