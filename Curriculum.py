@@ -6,6 +6,91 @@ mycursor = ""
 results = ""
 
 
+# Function to get curriculum coverage
+def findcoverage(currname):
+    # Define variables
+    global mycursor
+    requnitsum = 0
+    optunitsum = 0
+    iscovered = 0
+    level_1_reqcoveredsum = 0
+    level_2_reqcoveredsum = 0
+    level_3_reqcoveredsum = 0
+    level_2_optcoveredsum = 0
+
+    # Get list of topicID in curriculum
+    query = "select topicID, level, units from curriculum.curriculumtopics where curriculumName='" + currname + "'"
+
+    # Get result set
+    mycursor.execute(query)
+    res = mycursor.fetchall()
+
+    # For each topicID, find the courses that cover it
+    for i in res:
+        query = "select units, courseName from curriculum.coursetopics where curriculumName='" + currname + "' " \
+                "and topicID='" + str(i[0]) + "'"
+        mycursor.execute(query)
+        courseres = mycursor.fetchall()
+
+        # Calculate if coverage is met or not
+        for j in courseres:
+            query = "select optional from curriculum.curriculumcourses where curriculumName='" + currname + "' and " \
+                    "courseName='" + str(j[1]) + "'"
+            mycursor.execute(query)
+            optcourse = mycursor.fetchall()
+
+            # If course is required, add to req sum, else add to optional sum
+            if optcourse[0][0] == 0:
+                requnitsum += j[0]
+            else:
+                optunitsum += j[0]
+
+        # If coverage is met, set bool value
+        if requnitsum >= i[2]:
+            if i[1] == 1:
+                level_1_reqcoveredsum += 1
+            if i[1] == 2:
+                level_2_reqcoveredsum += 1
+            if i[1] == 3:
+                level_3_reqcoveredsum += 1
+        if optunitsum + requnitsum >= i[2] and i[1] == 2:
+            level_2_optcoveredsum += 1
+
+        requnitsum = 0
+        optunitsum = 0
+
+    # Get count of all topics from each level
+    query = "select count(*) from curriculum.curriculumtopics where level=1"
+    mycursor.execute(query)
+    level1count = mycursor.fetchall()
+    level1count = level1count[0][0]
+
+    query = "select count(*) from curriculum.curriculumtopics where level=2"
+    mycursor.execute(query)
+    level2count = mycursor.fetchall()
+    level2count = level2count[0][0]
+
+    query = "select count(*) from curriculum.curriculumtopics where level=3"
+    mycursor.execute(query)
+    level3count = mycursor.fetchall()
+    level3count = level3count[0][0]
+
+    # Compare cover count to level count and decide coverage
+    if level_1_reqcoveredsum >= level1count and level_2_reqcoveredsum >= level2count \
+            and level_3_reqcoveredsum >= level3count / 2:
+        return "Extensive"
+    elif level_1_reqcoveredsum >= level1count and level_2_reqcoveredsum >= level2count:
+        return "Inclusive"
+    elif level_1_reqcoveredsum >= level1count and (level_2_reqcoveredsum / 2) + level_2_optcoveredsum >= level2count:
+        return "Basic-plus"
+    elif level_1_reqcoveredsum >= level1count and level_2_reqcoveredsum / 2 >= level2count:
+        return "Basic"
+    elif level_1_reqcoveredsum >= level1count:
+        return "Unsatisfactory"
+    else:
+        return "Substandard"
+
+
 # Function to get a count of the required and optional courses to a curriculum
 def getrequiredcount(currname):
     # Define variables
