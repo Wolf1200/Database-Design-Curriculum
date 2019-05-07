@@ -6,6 +6,22 @@ mycursor = ""
 results = ""
 
 
+def getgoals():
+    global mycursor
+    query = "select id from goal"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcurricgoals(curr):
+    global mycursor
+    query = "select id from goal where curriculum = '" + curr + "'"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
 # Function to get curriculum coverage
 def findcoverage(currname):
     # Define variables
