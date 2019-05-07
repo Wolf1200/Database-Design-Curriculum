@@ -302,6 +302,17 @@ def edittopics(array, oldid):
     mydb.commit()
 
 
+# Function to get all topics by key
+def getcurrenttopics():
+    global mycursor
+    query = "select id from curriculum.topics"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
+
+
 # Function to insert goal
 def insertgoal(array):
     # Define variables
@@ -353,6 +364,16 @@ def editgoal(array, oldid):
     # Execute query and commit db
     mycursor.execute(query, array)
     mydb.commit()
+
+
+def getcurrentgoals():
+    global mycursor
+    query = "select id from curriculum.goal"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
 
 
 # Function to insert goal/grade relationship
@@ -428,6 +449,16 @@ def editgoalgrade(array, semester, year, secid, coursename, goalid):
     mydb.commit()
 
 
+def getcurrentgoalgrades():
+    global mycursor
+    query = "select * from curriculum.goalgrades"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
+
+
 # Function to insert Curriculum/Topics
 def insertcurriculumtopics(array):
     # Define variables
@@ -466,6 +497,16 @@ def editcurriculumtopics(array, currname, topicid):
     # Execute query and commit db
     mycursor.execute(query, array)
     mydb.commit()
+
+
+def getcurrentcurrtopics():
+    global mycursor
+    query = "select curriculumName, topicID from curriculum.curriculumtopics"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
 
 
 # Function to insert Course/Topics
@@ -511,6 +552,16 @@ def editcoursetopics(array, coursename, currname, topicid):
     mydb.commit()
 
 
+def getcurrentcoursetopics():
+    global mycursor
+    query = "select courseName, curriculumName, topicID from curriculum.coursetopics"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
+
+
 # Function to insert Course/Goals
 def insertcoursegoals(array):
     # Define variables
@@ -550,6 +601,16 @@ def editcoursegoals(array, currname, coursename):
     # Execute query and commit db
     mycursor.execute(query, array)
     mydb.commit()
+
+
+def getcurrentcoursegoals():
+    global mycursor
+    query = "select curriculumName, courseName from curriculum.coursegoals"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
 
 
 # Function to insert Curriculum/Courses
@@ -592,6 +653,16 @@ def editcurriculumcourse(array, currname, coursename):
     # Execute query and commit db
     mycursor.execute(query, array)
     mydb.commit()
+
+
+def getcurrentcurrcourses():
+    global mycursor
+    query = "select curriculumName, courseName from curriculum.curriculumcourses"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
 
 
 # Function to insert StudentGrades
@@ -639,6 +710,16 @@ def editstudentgrades(array, semester, year, secid, coursename):
     mydb.commit()
 
 
+def getcurrentstudentgrades():
+    global mycursor
+    query = "select semester, year, sectionID, courseName from curriculum.studentgrades"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
+
+
 # Function to insert Course/Sections
 def insertcoursesections(array):
     # Define variables
@@ -680,6 +761,16 @@ def editcoursesection(array, semester, year, secid, coursename):
     # Execute query and commit db
     mycursor.execute(query, array)
     mydb.commit()
+
+
+def getcurrentcoursesections():
+    global mycursor
+    query = "select semester, year, sectionID, courseName from curriculum.coursesections"
+
+    mycursor.execute(query)
+
+    ret = mycursor.fetchall()
+    return ret
 
 
 # Function to return all topics and courses related to a curriculum (names only)
