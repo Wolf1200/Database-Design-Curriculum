@@ -1156,3 +1156,196 @@ class StartPage(tk.Frame):
         button9.pack()
         button10.pack()
         button11.pack()
+        
+        
+        
+        
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+class InsertCourseTopicsPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Course Topics Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        global COURSES
+        self.courseLabel = tk.Label(self, text="Course")
+        self.courseBox = ttk.Combobox(self, values=COURSES)
+
+        global CURRICULUMS
+        self.curriculumLabel = tk.Label(self, text="Curriculum")
+        self.curriculumBox = ttk.Combobox(self, values=CURRICULUMS)
+        self.curriculumBox.bind("<<ComboboxSelected>>", self.updateothers)
+
+        self.topicIDLabel = tk.Label(self, text="Topic ID")
+        self.topicIDBox = ttk.Combobox(self)
+
+        vcmd2 = (self.register(self.validatefloat), '%S', '%P')
+        self.unitsLabel = tk.Label(self, text="Units")
+        self.unitsEntry = tk.Entry(self, validate='all', validatecommand=vcmd2)
+
+        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+    
+        self.courseLabel.pack()
+        self.courseBox.pack()
+
+        self.curriculumLabel.pack()
+        self.curriculumBox.pack()
+
+        self.topicIDLabel.pack()
+        self.topicIDBox.pack()
+        
+        self.unitsLabel.pack()
+        self.unitsEntry.pack()
+        
+        self.insert.pack(side=tk.BOTTOM)
+        self.button.pack(side=tk.BOTTOM)
+
+    def validatefloat(self, text, P):
+        if text in '0123456789.':
+            try:
+                float(P)
+                return True
+            except ValueError:
+                return False
+        else:
+            return False
+        
+
+    
+class InsertCourseSectionsPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Course Sections Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        self.semesterLabel = tk.Label(self, text="Semester")
+        self.semesterBox = ttk.Combobox(self, values=["Spring", "Summer",
+                                                      "Fall", "Winter"])
+
+        vcmd = (self.register(self.validateint)) 
+        self.yearLabel = tk.Label(self, text="Year")
+        self.yearEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+
+        self.limitvalue = tk.StringVar()
+        self.limitvalue.trace('w', self.limitsize)
+        self.sectionIDLabel = tk.Label(self, text="Section ID")
+        self.sectionIDEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'),
+                                       textvariable=self.limitvalue)
+
+        global COURSE
+        self.courseLabel = tk.Label(self, text="Course")
+        self.courseBox = ttk.Combobox(self, values=COURSES)
+
+        self.enrolledLabel = tk.Label(self, text="Enrolled")                              
+        self.enrolledEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+
+        self.comOneLabel = tk.Label(self, text="Comment 1")
+        self.comOneEntry = tk.Entry(self)
+
+        self.comTwoLabel = tk.Label(self, text="Comment 2")    
+        self.comTwoEntry = tk.Entry(self)
+
+        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+
+        self.semesterLabel.pack()
+        self.semesterBox.pack()
+
+        self.yearLabel.pack()
+        self.yearEntry.pack()                        
+
+        self.enrolledLabel.pack()
+        self.enrolledEntry.pack()
+
+        self.comOneLabel.pack()
+        self.comOneEntry.pack()
+
+        self.comTwoLabel.pack()
+        self.comTwoEntry.pack()
+                                    
+        self.insert.pack(side=tk.BOTTOM)
+        self.button.pack(side=tk.BOTTOM)
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
+
+
+
+class InsertGoalGrades(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        tk.Frame.__init__(self, parent)
+        label = tk.Label(self, text="Insert Goal Grades Page", font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        self.semesterLabel = tk.Label(self, text="Semester")
+        self.semesterBox = ttk.Combobox(self, values=["Spring", "Summer",
+                                                      "Fall", "Winter"])
+        
+        vcmd = (self.register(self.validateint))         
+        self.yearLabel = tk.Label(self, text="Year")
+        self.yearEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+
+        self.sectionIDLabel = tk.Label(self, text="Section ID")
+        self.sectionIDBox = ttk.Combobox(self)
+
+        global COURSES
+        self.courseLabel = tk.Label(self, text="Course")
+        self.courseBox = ttk.Combobox(self, values=COURSES)
+
+        global GOALS
+        self.goalIDLabel = tk.Label(self, text="Goal ID")
+        self.goalIDBox = ttk.Combobox(self, values=GOALS)
+
+        self.goalGradeLabel = tk.Label(self, text="Goal Grade")
+        self.goalGradeEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+
+        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.button = tk.Button(self, text="Back to Start Page",
+                           command=lambda: self.backtostart(controller))
+
+        self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+
+        self.semesterLabel.pack()
+        self.semesterBox.pack()
+                                       
+        self.yearLabel.pack()
+        self.yearEntry.pack()
+                                   
+        self.sectionIDLabel.pack()
+        self.sectionIDBox.pack()
+                                       
+        self.courseLabel.pack()
+        self.courseBox.pack()
+                                       
+        self.goalIDLabel.pack()
+        self.goalIDBox.pack()
+
+        self.goalGradeLabel.pack()
+        self.goalGradeEntry.pack()
+
+        self.insert.pack(side=tk.BOTTOM)
+        self.button.pack(side=tk.BOTTOM)
+
+
+    def validateint(self, P):
+        if str.isdigit(P) or P == "":
+            return True
+        else:
+            return False
+
+
+                                         
+
