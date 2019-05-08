@@ -693,7 +693,7 @@ class SearchCourseByCurriculumPage(tk.Frame):
         self.course.config(values=courses)
 
 
-class InsertTopicPage(tk.Frame):
+class InsertCurriculumTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Topic Page", font=LARGE_FONT)
@@ -705,8 +705,6 @@ class InsertTopicPage(tk.Frame):
         self.currictext = tk.Entry(self)
         topiclabel = tk.Label(self, text="Topic ID")
         self.topicidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        topicnamelabel = tk.Label(self, text="Topic Name")
-        self.topicnametext = tk.Entry(self)
         levellabel = tk.Label(self, text="Level")
         self.leveltext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
         subjectlabel = tk.Label(self, text="Subject Area")
@@ -1060,16 +1058,22 @@ class InsertCourseGoalPage(tk.Frame):
         self.id.config(values=ids)
 
 
-class InsertTopic(tk.Frame):
+class InsertTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        labelid = tk.Label(self, text="Topic ID")
-        labelname = tk.Label(self, text="Topic Name")
+        vcmd = (self.register(self.validateint))
+        topiclabel = tk.Label(self, text="Topic ID")
+        self.topicidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        topicnamelabel = tk.Label(self, text="Topic Name")
+        self.topicnametext = tk.Entry(self)
 
-        self.id = tk.Entry(self)
+        topiclabel.pack()
+        self.topicidtext.pack()
+        topicnamelabel.pack()
+        self.topicnametext.pack()
 
 
 class StartPage(tk.Frame):
@@ -1102,6 +1106,7 @@ class StartPage(tk.Frame):
                              controller.show_frame(InsertGoalPage))
         button11 = tk.Button(self, text="Insert Course Goal", command=lambda:
                              controller.show_frame(InsertCourseGoalPage))
+        button12 = tk.Button(self, text="Insert Topic", command=lambda: controller.show_frame(InsertTopicPage))
         button12 = tk.Button(self, text="Insert Course Topic", command=lambda:
                              controller.show_frame(InsertCourseTopicsPage))
         button13 = tk.Button(self, text="Insert Course Section", command=lambda:
@@ -1323,12 +1328,12 @@ class InsertGoalGrades(tk.Frame):
         self.yearLabel = tk.Label(self, text="Year")
         self.yearEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
 
-        self.sectionIDLabel = tk.Label(self, text="Section ID")
-        self.sectionIDBox = ttk.Combobox(self)
-
         global COURSES
         self.courseLabel = tk.Label(self, text="Course")
         self.courseBox = ttk.Combobox(self, values=COURSES)
+
+        self.sectionIDLabel = tk.Label(self, text="Section ID")
+        self.sectionIDBox = ttk.Combobox(self)
 
         global GOALS
         self.goalIDLabel = tk.Label(self, text="Goal ID")
@@ -1369,3 +1374,32 @@ class InsertGoalGrades(tk.Frame):
             return True
         else:
             return False
+
+    def insertpressed(self, controller):
+        semester = self.semesterBox.get()
+        year = self.yearEntry.get()
+        section = self.sectionIDBox.get()
+        course = self.courseBox.get()
+        goalid = self.goalIDBox.get()
+        goalgrade = self.goalGradeEntry.get()
+
+        if not semester or not year or not section or not course or not goalid or not goalgrade:
+            self.errorlabel.pack()
+        else:
+            array = [semester, year, section, course, goalid, goalgrade]
+
+            insertgoalgrade(array)
+            self.backtostart(controller)
+
+    def backtostart(self, controller):
+        self.errorlabel.pack()
+        self.semesterBox.set('')
+        self.yearEntry.delete(0, 'end')
+        self.sectionIDBox.set('')
+        self.courseBox.set('')
+        self.goalIDBox.set('')
+        self.goalGradeEntry.delete(0, 'end')
+        controller.show_frame(StartPage)
+
+    def updateoffcourse(self):
+        getcoursegoals()

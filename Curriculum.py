@@ -632,11 +632,10 @@ def insertcoursetopics(array):
 
 
 # Function to get Course/Topics
-def getcoursetopics(coursename, currname, topicid):
+def getcoursetopics(coursename):
     # Define variables
     global mycursor
-    query = "select * from coursetopics where courseName = '" + coursename + "' and " \
-            "curriculumName='" + currname + "' and topicID='" + topicid + "'"
+    query = "select * from coursetopics where courseName = '" + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -684,11 +683,10 @@ def insertcoursegoals(array):
 
 
 # Function to get Course/Goals
-def getcoursegoals(currname, courseName, goalid):
+def getcoursegoals(courseName):
     # Define variables
     global mycursor
-    query = "select * from coursegoals where curriculumName='" + currname + "' and courseName = '" + courseName + \
-            "' and goalID='" + goalid + "'"
+    query = "select goalID from coursegoals where courseName = '" + courseName + "'"
 
     # Execute query
     mycursor.execute(query)
