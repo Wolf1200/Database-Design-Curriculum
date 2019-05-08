@@ -716,7 +716,7 @@ class InsertCourseGoalPage(tk.Frame):
 class InsertTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Insert Topic Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         vcmd = (self.register(self.validateint))
@@ -2232,8 +2232,7 @@ class EditCourseGoalPage(tk.Frame):
 class EditTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Edit Student Grades Page", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+        label = tk.Label(self, text="Edit Topic Page", font=LARGE_FONT)
 
         vcmd = (self.register(self.validateint))
         topiclabel = tk.Label(self, text="Topic ID")
