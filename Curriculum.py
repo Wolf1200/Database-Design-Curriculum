@@ -1,9 +1,113 @@
 import mysql.connector
+import tkinter as tk
+from tkinter import messagebox
+from mysql.connector import errorcode
 
 # Global variables
 mydb = ""
 mycursor = ""
 results = ""
+
+
+def getgoals():
+    global mycursor
+    query = "select id from goal"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcurricgoals(curr):
+    global mycursor
+    query = "select id from goal where curriculum = '" + curr + "'"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+# Function to get curriculum coverage
+def findcoverage(currname):
+    # Define variables
+    global mycursor
+    requnitsum = 0
+    optunitsum = 0
+    iscovered = 0
+    level_1_reqcoveredsum = 0
+    level_2_reqcoveredsum = 0
+    level_3_reqcoveredsum = 0
+    level_2_optcoveredsum = 0
+
+    # Get list of topicID in curriculum
+    query = "select topicID, level, units from curriculum.curriculumtopics where curriculumName='" + currname + "'"
+
+    # Get result set
+    mycursor.execute(query)
+    res = mycursor.fetchall()
+
+    # For each topicID, find the courses that cover it
+    for i in res:
+        query = "select units, courseName from curriculum.coursetopics where curriculumName='" + currname + "' " \
+                "and topicID='" + str(i[0]) + "'"
+        mycursor.execute(query)
+        courseres = mycursor.fetchall()
+
+        # Calculate if coverage is met or not
+        for j in courseres:
+            query = "select optional from curriculum.curriculumcourses where curriculumName='" + currname + "' and " \
+                    "courseName='" + str(j[1]) + "'"
+            mycursor.execute(query)
+            optcourse = mycursor.fetchall()
+
+            # If course is required, add to req sum, else add to optional sum
+            if optcourse[0][0] == 0:
+                requnitsum += j[0]
+            else:
+                optunitsum += j[0]
+
+        # If coverage is met, set bool value
+        if requnitsum >= i[2]:
+            if i[1] == 1:
+                level_1_reqcoveredsum += 1
+            if i[1] == 2:
+                level_2_reqcoveredsum += 1
+            if i[1] == 3:
+                level_3_reqcoveredsum += 1
+        if optunitsum + requnitsum >= i[2] and i[1] == 2:
+            level_2_optcoveredsum += 1
+
+        requnitsum = 0
+        optunitsum = 0
+
+    # Get count of all topics from each level
+    query = "select count(*) from curriculum.curriculumtopics where level=1"
+    mycursor.execute(query)
+    level1count = mycursor.fetchall()
+    level1count = level1count[0][0]
+
+    query = "select count(*) from curriculum.curriculumtopics where level=2"
+    mycursor.execute(query)
+    level2count = mycursor.fetchall()
+    level2count = level2count[0][0]
+
+    query = "select count(*) from curriculum.curriculumtopics where level=3"
+    mycursor.execute(query)
+    level3count = mycursor.fetchall()
+    level3count = level3count[0][0]
+
+    # Compare cover count to level count and decide coverage
+    if level_1_reqcoveredsum >= level1count and level_2_reqcoveredsum >= level2count \
+            and level_3_reqcoveredsum >= level3count / 2:
+        return "Extensive"
+    elif level_1_reqcoveredsum >= level1count and level_2_reqcoveredsum >= level2count:
+        return "Inclusive"
+    elif level_1_reqcoveredsum >= level1count and (level_2_reqcoveredsum / 2) + level_2_optcoveredsum >= level2count:
+        return "Basic-plus"
+    elif level_1_reqcoveredsum >= level1count and level_2_reqcoveredsum / 2 >= level2count:
+        return "Basic"
+    elif level_1_reqcoveredsum >= level1count:
+        return "Unsatisfactory"
+    else:
+        return "Substandard"
 
 
 # Function to get a count of the required and optional courses to a curriculum
@@ -118,13 +222,16 @@ def insertcurriculum(array):
     # Define variables
     global mydb
     global mycursor
-
-    query = "insert into curriculum (name, headID, headName, totCredits, maxUnits, coverage, numGoals) values " \
-            "(%s, %s, %s, %s, %s, %s, %s)"
-
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    query = "insert into curriculum (name, headID, headName, totCredits, maxUnits) values " \
+            "(%s, %s, %s, %s, %s)"
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get curriculum
@@ -146,9 +253,9 @@ def editcurriculum(array, currname):
     global mycursor
     global mydb
 
-    query = "update curriculum.curriculum set name='" + array[0] + "', headID='" + array[1] + "', " \
-            "headName='" + array[2] + "', totCredits='" + array[3] + "', maxUnits='" + array[4] + "', " \
-            "coverage='" + array[5] + "', numGoals='" + array[6] + "' where (name='" + currname + "')"
+    query = "update curriculum.curriculum set headID='" + array[0] + "', " \
+            "headName='" + array[1] + "', totCredits='" + array[2] + "', maxUnits='" + array[3] + "', " \
+            "coverage='" + array[4] + "', numGoals='" + array[5] + "' where (name='" + currname + "')"
 
     # Execute edit and commit
     mycursor.execute(query)
@@ -217,9 +324,14 @@ def insertcourse(array):
     # Insert tuple
     query = "insert into course (name, subCode, courseNumber, creditHours, description) values (%s, %s, %s, %s, %s)"
 
-    # Execute query and commit to db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get course
@@ -265,8 +377,14 @@ def inserttopics(array):
 
     query = "insert into topics (id, name) values (%s, %s)"
 
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get topic
@@ -336,9 +454,14 @@ def insertgoal(array):
     # Create query to execute
     query = "insert into goal (id, description, curriculum) values (%s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get goal
@@ -416,9 +539,14 @@ def insertgoalgrade(array):
     query = "insert into goalgrades (semester, year, sectionID, subCode, courseNumber, goalID, goalGrade) values " \
             "(%s, %s, %s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get goal/grade
@@ -468,9 +596,14 @@ def insertcurriculumtopics(array):
     query = "insert into curriculumtopics (curriculumName, topicID, level, subjectArea, units) values " \
             "(%s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Curriculum/Topics
@@ -519,17 +652,21 @@ def insertcoursetopics(array):
     query = "insert into coursetopics (courseName, curriculumName, topicID, units) values " \
             "(%s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Course/Topics
-def getcoursetopics(coursename, currname, topicid):
+def getcoursetopics(coursename):
     # Define variables
     global mycursor
-    query = "select * from coursetopics where courseName = '" + coursename + "' and " \
-            "curriculumName='" + currname + "' and topicID='" + topicid + "'"
+    query = "select topicID from coursetopics where courseName = '" + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -571,17 +708,21 @@ def insertcoursegoals(array):
     # Define query to insert
     query = "insert into coursegoals (curriculumName, courseName, goalID) values (%s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Course/Goals
-def getcoursegoals(currname, courseName, goalid):
+def getcoursegoals(courseName):
     # Define variables
     global mycursor
-    query = "select * from coursegoals where curriculumName='" + currname + "' and courseName = '" + courseName + \
-            "' and goalID='" + goalid + "'"
+    query = "select goalID from coursegoals where courseName = '" + courseName + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -623,9 +764,14 @@ def insertcurriculumcourses(array):
     query = "insert into curriculumcourses (curriculumName, courseName, optional) " \
             "values (%s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Curriculum/Course
@@ -676,9 +822,14 @@ def insertstudentgrades(array):
             " numB, numBM, numCP, numC, numCM, numDP, numD, numDM, numF, numW, numI) values " \
             "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get StudentGrades
@@ -727,12 +878,17 @@ def insertcoursesections(array):
     global mycursor
 
     # Define query to insert
-    query = "insert into coursesections (semester, year, sectionID, courseName) values " \
-            "(%s, %s, %s, %s)"
+    query = "insert into coursesections (semester, year, sectionID, courseName, enrolled, comment1, comment2) values " \
+            "(%s, %s, %s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Course/Sections
@@ -746,6 +902,41 @@ def getcoursesection(semester, year, secid, courseName):
     mycursor.execute(query)
 
     # Return result set
+    return mycursor.fetchall()
+
+
+def getcoursesectionyears(course):
+    global mycursor
+    query = "select year from coursesections where courseName = '" + course + "' group by year"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcoursesectionsemesters(course, year):
+    global mycursor
+    query = ("select semester from coursesections where courseName = '" + course + "' and year = '"
+             + year + "' group by semester")
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcoursesectionids(course, year, semester):
+    global mycursor
+    query = ("select sectionID from coursesections where courseName = '" + course + "' and year = '"
+             + year + "' and semester = '" + semester + "' group by sectionID")
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcoursesectionenrolled(course, year, semester, sectionid):
+    global mycursor
+    query = ("select enrolled from coursesections where courseName = '" + course + "' and year = '"
+             + year + "' and semester = '" + semester + "' and sectionID = '" + sectionid + "'")
+
+    mycursor.execute(query)
     return mycursor.fetchall()
 
 
@@ -792,18 +983,18 @@ def getallcoursestopics(currname):
 def initdatabase():
     # Open DB connection
     global mydb
-    mydb = mysql.connector.connect(user='testUser', password='SicEmBears', host='127.0.0.1', database='Curriculum')
+    mydb = mysql.connector.connect(user='testUser', password='SicEmBears', host='127.0.0.1')
     global mycursor
     mycursor = mydb.cursor()
 
-    # mycursor.execute("CREATE DATABASE IF NOT EXISTS Curriculum")
+    mycursor.execute("CREATE DATABASE IF NOT EXISTS Curriculum")
 
     # mycursor.execute("CREATE USER IF NOT EXISTS testUser@localhost IDENTIFIED BY 'SicEmBears';")
     # mycursor.execute("use curriculum")
     # mycursor.execute("GRANT all on curriculum.* to testUser@localhost")
 
-    # mydb = mysql.connector.connect(user='testUser', password='SicEmBears',
-                                   # host='127.0.0.1', database='Curriculum')
+    mydb = mysql.connector.connect(user='testUser', password='SicEmBears',
+                                   host='127.0.0.1', database='Curriculum')
 
     mycursor = mydb.cursor()
 
@@ -824,9 +1015,9 @@ def initdatabase():
                      "not null, primary key (id, curriculum),"
                      "foreign key (curriculum) references curriculum (name))")
 
-    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, subCode varchar(25) not null, "
-                     "courseNumber int not null, creditHours int, description text, constraint course_pk "
-                     "primary key (name, subCode, courseNumber))")
+    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, "
+                     "subCode varchar(25) not null, courseNumber int not null, creditHours int, description text, "
+                     "primary key (name), unique key (subCode, courseNumber))")
 
     mycursor.execute("create table IF NOT EXISTS courseTopics (courseName varchar(25) not null,"
                      " curriculumName varchar(25) not null, topicID int not null, units float,"
