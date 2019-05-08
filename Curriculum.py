@@ -666,7 +666,7 @@ def insertcoursetopics(array):
 def getcoursetopics(coursename):
     # Define variables
     global mycursor
-    query = "select * from coursetopics where courseName = '" + "'"
+    query = "select topicID from coursetopics where courseName = '" + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -878,8 +878,8 @@ def insertcoursesections(array):
     global mycursor
 
     # Define query to insert
-    query = "insert into coursesections (semester, year, sectionID, courseName) values " \
-            "(%s, %s, %s, %s)"
+    query = "insert into coursesections (semester, year, sectionID, courseName, enrolled, comment1, comment2) values " \
+            "(%s, %s, %s, %s, %s, %s, %s)"
 
     try:
         # Execute query and commit db
@@ -902,6 +902,41 @@ def getcoursesection(semester, year, secid, courseName):
     mycursor.execute(query)
 
     # Return result set
+    return mycursor.fetchall()
+
+
+def getcoursesectionyears(course):
+    global mycursor
+    query = "select year from coursesections where courseName = '" + course + "' group by year"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcoursesectionsemesters(course, year):
+    global mycursor
+    query = ("select semester from coursesections where courseName = '" + course + "' and year = '"
+             + year + "' group by semester")
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcoursesectionids(course, year, semester):
+    global mycursor
+    query = ("select sectionID from coursesections where courseName = '" + course + "' and year = '"
+             + year + "' and semester = '" + semester + "' group by sectionID")
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
+def getcoursesectionenrolled(course, year, semester, sectionid):
+    global mycursor
+    query = ("select enrolled from coursesections where courseName = '" + course + "' and year = '"
+             + year + "' and semester = '" + semester + "' and sectionID = '" + sectionid + "'")
+
+    mycursor.execute(query)
     return mycursor.fetchall()
 
 
