@@ -579,6 +579,89 @@ def getgoalgrade(semester, year, secid, courseName, goalid):
     return mycursor.fetchall()
 
 
+def getgoalgradecourses():
+    # Define variables
+    global mycursor
+    query = "select courseName from goalgrades"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    courses = mycursor.fetchall()
+    for x in range(0, len(courses)):
+        courses[x] = courses[x][0]
+
+    return courses
+
+
+def getgoalgradeyears(courseName):
+    # Define variables
+    global mycursor
+    query = "select year from goalgrades where courseName = '" + courseName + "' group by year"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    years = mycursor.fetchall()
+    for x in range(0, len(years)):
+        years[x] = years[x][0]
+
+    return years
+
+
+def getgoalgradesemesters(courseName, year):
+    # Define variables
+    global mycursor
+    query = "select year from goalgrades where courseName = '" + courseName + \
+            "' and year = '" + year + "' group by semester"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    semesters = mycursor.fetchall()
+    for x in range(0, len(semesters)):
+        semesters[x] = semesters[x][0]
+
+    return semesters
+
+
+def getgoalgradesections(courseName, year, semester):
+    # Define variables
+    global mycursor
+    query = "select year from goalgrades where courseName = '" + courseName + \
+            "' and year = '" + year + "' and semester = '" + semester + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    sections = mycursor.fetchall()
+    for x in range(0, len(sections)):
+        sections[x] = sections[x][0]
+
+    return sections
+
+
+def getgoalgradegoalids(courseName, year, semester, section):
+    # Define variables
+    global mycursor
+    query = "select year from goalgrades where courseName = '" + courseName + \
+            "' and year = '" + year + "' and semester = '" + semester + "' and sectionID = '" + section + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    goalids = mycursor.fetchall()
+    for x in range(0, len(goalids)):
+        goalids[x] = goalids[x][0]
+
+    return goalids
+
+
 # Function to edit goalgrade
 def editgoalgrade(array, semester, year, secid, coursename, goalid):
     # Define variables
@@ -1114,7 +1197,7 @@ def initdatabase():
 
     mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, "
                      "courseName varchar(25) not null, goalID int not null, "
-                     "primary key (curriculumName, courseName, goalID),"
+                     "primary key (curriculumName, courseName),"
                      "foreign key (curriculumName, courseName) "
                      "references curriculumcourses (curriculumName, courseName) on update cascade,"
                      "foreign key (goalID) references goal (id) on update cascade)")

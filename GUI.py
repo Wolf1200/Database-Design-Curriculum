@@ -73,7 +73,8 @@ class DatabaseGUI(tk.Tk):
                   InsertCourseSectionsPage, InsertCourseTopicsPage, InsertTopicPage,
                   EditCurriculumPage, EditCoursePage, EditCurriculumCoursePage,
                   EditCurriculumTopicPage, EditStudentGrades, EditGoalPage,
-                  EditCourseGoalPage, EditCourseTopicsPage, EditCourseSectionsPage):
+                  EditCourseGoalPage, EditCourseTopicsPage, EditCourseSectionsPage,
+                  EditGoalGrades):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -974,7 +975,7 @@ class InsertGoalGrades(tk.Frame):
 
         global GOALS
         self.goalIDLabel = tk.Label(self, text="Goal ID")
-        self.goalIDBox = ttk.Combobox(self, values=)
+        self.goalIDBox = ttk.Combobox(self, values=GOALS)
 
         self.goalGradeLabel = tk.Label(self, text="Goal Grade")
         self.goalGradeEntry = tk.Entry(self, validate='all')
@@ -2526,52 +2527,47 @@ class EditCourseSectionsPage(tk.Frame):
 class EditGoalGrades(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Goal Grades Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        self.semesterLabel = tk.Label(self, text="Semester")
-        self.semesterBox = ttk.Combobox(self)
-
-        vcmd = (self.register(self.validateint))
-        self.yearLabel = tk.Label(self, text="Year")
-        self.yearEntry = tk.Entry(self)
-
-        global COURSES
-        self.courseLabel = tk.Label(self, text="Course")
-        self.courseBox = ttk.Combobox(self, values=COURSES)
-
-        self.sectionIDLabel = tk.Label(self, text="Section ID")
-        self.sectionIDBox = ttk.Combobox(self)
+        self.semesterlabel = tk.Label(self, text="Semester")
+        self.semesterbox = ttk.Combobox(self)
+        self.yearlabel = tk.Label(self, text="Year")
+        self.yearentry = ttk.Combobox(self)
+        self.sectionidlabel = tk.Label(self, text="Section ID")
+        self.sectionidentry = ttk.Combobox(self)
+        self.coursenamelabel = tk.Label(self, text="Course Name")
+        self.coursenamebox = ttk.Combobox(self, values=getcoursesectioncourses())
 
         global GOALS
         self.goalIDLabel = tk.Label(self, text="Goal ID")
         self.goalIDBox = ttk.Combobox(self, values=GOALS)
 
         self.goalGradeLabel = tk.Label(self, text="Goal Grade")
-        self.goalGradeEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.gevar = tk.StringVar()
+        self.goalGradeEntry = tk.Entry(self, textvariable=self.gevar, validate='all')
 
-        self.insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
+        self.coursenamebox.bind("<<ComboboxSelected>>", self.updateyears)
+        self.semesterbox.bind("<<ComboboxSelected>>", self.updatesectionids)
+        self.yearentry.bind("<<ComboboxSelected>>", self.updatesemesters)
+        self.sectionidentry.bind("<<ComboboxSelected>>", self.updategoalids)
+        self.goalIDBox.bind("<<ComboboxSelected>>", self.updategoalgrade)
+
+        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
         self.button = tk.Button(self, text="Back to Start Page",
                                 command=lambda: self.backtostart(controller))
 
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
-
-        self.semesterLabel.pack()
-        self.semesterBox.pack()
-
-        self.yearLabel.pack()
-        self.yearEntry.pack()
-
-        self.sectionIDLabel.pack()
-        self.sectionIDBox.pack()
-
-        self.courseLabel.pack()
-        self.courseBox.pack()
-
+        self.coursenamelabel.pack()
+        self.coursenamebox.pack()
+        self.yearlabel.pack()
+        self.yearentry.pack()
+        self.semesterlabel.pack()
+        self.semesterbox.pack()
+        self.sectionidlabel.pack()
+        self.sectionidentry.pack()
         self.goalIDLabel.pack()
         self.goalIDBox.pack()
-
         self.goalGradeLabel.pack()
         self.goalGradeEntry.pack()
 
@@ -2585,10 +2581,10 @@ class EditGoalGrades(tk.Frame):
             return False
 
     def insertpressed(self, controller):
-        semester = self.semesterBox.get()
-        year = self.yearEntry.get()
-        section = self.sectionIDBox.get()
-        course = self.courseBox.get()
+        semester = self.semesterbox.get()
+        year = self.yearentry.get()
+        section = self.sectionidentry.get()
+        course = self.coursenamebox.get()
         goalid = self.goalIDBox.get()
         goalgrade = self.goalGradeEntry.get()
 
@@ -2597,21 +2593,56 @@ class EditGoalGrades(tk.Frame):
         else:
             array = [semester, year, section, course, goalid, goalgrade]
 
-            insertgoalgrade(array)
+            editgoalgrade(array, semester, year, section, course, goalid)
             self.backtostart(controller)
 
     def backtostart(self, controller):
         self.errorlabel.pack()
-        self.semesterBox.set('')
-        self.yearEntry.delete(0, 'end')
-        self.sectionIDBox.set('')
-        self.courseBox.set('')
+        self.semesterbox.set('')
+        self.yearentry.set('')
+        self.sectionidentry.set('')
+        self.coursenamebox.set('')
         self.goalIDBox.set('')
         self.goalGradeEntry.delete(0, 'end')
         controller.show_frame(StartPage)
 
-    def updateoffcourse(self):
-        getcoursegoals()
+    def updateyears(self, *args):
+        years = getgoalgradeyears(self.coursenamebox.get())
+        self.yearentry.config(values=years)
+        self.semesterbox.config(values=[])
+        self.sectionidentry.config(values=[])
+        self.goalIDBox.config(values=[])
+        self.yearentry.set('')
+        self.semesterbox.set('')
+        self.sectionidentry.set('')
+        self.goalIDBox.set('')
+
+    def updatesemesters(self, *args):
+        semesters = getgoalgradesemesters(self.coursenamebox.get(), self.yearentry.get())
+        self.semesterbox.config(values=semesters)
+        self.semesterbox.set('')
+        self.sectionidentry.config(values=[])
+        self.sectionidentry.set('')
+        self.goalIDBox.config(values=[])
+        self.goalIDBox.set('')
+
+    def updatesectionids(self, *args):
+        sectionids = getgoalgradesections(self.coursenamebox.get(), self.yearentry.get(), self.semesterbox.get())
+        self.sectionidentry.config(values=sectionids)
+        self.sectionidentry.set('')
+        self.goalIDBox.config(values=[])
+        self.goalIDBox.set('')
+
+    def updategoalids(self, *args):
+        goalids = getgoalgradegoalids(self.coursenamebox.get(), self.yearentry.get(), self.semesterbox.get(),
+                                      self.sectionidentry.get())
+        self.goalIDBox.config(values=goalids)
+        self.goalIDBox.set('')
+
+    def updategoalgrade(self, *args):
+        grade = getgoalgrade(self.semesterbox.get(), self.yearentry.get(), self.sectionidentry.get(),
+                             self.coursenamebox.get(), self.goalIDBox.get())[0]
+        self.gevar.set(grade[0])
 
 
 class StartPage(tk.Frame):
@@ -2671,6 +2702,8 @@ class StartPage(tk.Frame):
                              controller.show_frame(EditCourseTopicsPage))
         button25 = tk.Button(self, text="Edit Course Section", command=lambda:
                              controller.show_frame(EditCourseSectionsPage))
+        button26 = tk.Button(self, text="Edit Goal Grades", command=lambda:
+                             controller.show_frame(EditGoalGrades))
 
         button1.pack()
         button2.pack()
@@ -2697,3 +2730,4 @@ class StartPage(tk.Frame):
         button23.pack()
         button24.pack()
         button25.pack()
+        button26.pack()
