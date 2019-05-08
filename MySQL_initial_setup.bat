@@ -1,0 +1,1 @@
+bin\mysqld --initialize-insecure --log_syslog=0
