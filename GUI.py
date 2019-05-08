@@ -70,7 +70,10 @@ class DatabaseGUI(tk.Tk):
                   CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage,
                   InsertCurriculumTopicPage, InsertStudentGrades, InsertGoalPage,
                   InsertCurriculumCoursePage, InsertCourseGoalPage, InsertGoalGrades,
-                  InsertCourseSectionsPage, InsertCourseTopicsPage, InsertTopicPage):
+                  InsertCourseSectionsPage, InsertCourseTopicsPage, InsertTopicPage,
+                  EditCurriculumPage, EditCoursePage, EditCurriculumCoursePage,
+                  EditCurriculumTopicPage, EditStudentGrades, EditGoalPage,
+                  EditCourseGoalPage, EditCourseTopicsPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -79,11 +82,12 @@ class DatabaseGUI(tk.Tk):
 
     def show_frame(self, cont):
         frame = self.frames[cont]
-        if cont == SearchCurriculumPage or cont == InsertGoalPage:
+        if cont == SearchCurriculumPage or cont == InsertGoalPage or cont == EditCurriculumPage:
             frame.updatecurrlist()
-        if cont == SearchCoursePage or cont == InsertStudentGrades:
+        if cont == SearchCoursePage or cont == InsertStudentGrades or cont == EditCoursePage:
             frame.updatecourselist()
-        if cont == SearchCourseByCurriculumPage or cont == InsertCurriculumTopicPage:
+        if (cont == SearchCourseByCurriculumPage or cont == InsertCurriculumTopicPage or
+                cont == EditCurriculumCoursePage):
             frame.updatecomboboxes()
         frame.tkraise()
 
@@ -639,7 +643,7 @@ class InsertGoalPage(tk.Frame):
         controller.show_frame(StartPage)
 
     def updatecurrlist(self):
-        global COURSES
+        global CURRICULUMS
         self.curriculumbox.pack_forget()
         self.curriculumbox = ttk.Combobox(self, values=CURRICULUMS)
         self.curriculumbox.pack()
@@ -648,7 +652,7 @@ class InsertGoalPage(tk.Frame):
 class InsertCourseGoalPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Insert Course Goal Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         global CURRICULUMS
@@ -851,7 +855,6 @@ class InsertCourseTopicsPage(tk.Frame):
 
 class InsertCourseSectionsPage(tk.Frame):
     def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Course Sections Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
@@ -1485,15 +1488,20 @@ class SearchCourseByCurriculumPage(tk.Frame):
 class EditCurriculumPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Curriculum Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Curriculum Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
+
+        self.idvar = tk.StringVar()
+        self.hnvar = tk.StringVar()
+        self.crvar = tk.StringVar()
+        self.muvar = tk.StringVar()
 
         self.labelCName = ttk.Label(self, text="Name")
         self.labelCID = tk.Label(self, text="Head ID")
         self.labelCHeadName = tk.Label(self, text="Head Name")
         self.labelCCred = tk.Label(self, text="Total Credits")
         self.labelmaxCUnits = tk.Label(self, text="Max Units")
-        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         self.button = tk.Button(self, text="Back to Start Page",
                                 command=lambda: self.backtostart(controller))
 
@@ -1502,10 +1510,10 @@ class EditCurriculumPage(tk.Frame):
         global CURRICULUMS
         self.nametext = ttk.Combobox(self, values=CURRICULUMS)
         self.nametext.bind("<<ComboboxSelected>>", self.updateothers)
-        self.headidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.headname = tk.Entry(self)
-        self.totcreditstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.maxunitstext = tk.Entry(self, validate='all', validatecommand=vcmd2)
+        self.headidtext = tk.Entry(self, textvariable=self.idvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.headname = tk.Entry(self, textvariable=self.hnvar)
+        self.totcreditstext = tk.Entry(self, textvariable=self.crvar,validate='all', validatecommand=(vcmd, '%P'))
+        self.maxunitstext = tk.Entry(self, textvariable=self.muvar,validate='all', validatecommand=vcmd2)
 
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
 
@@ -1531,11 +1539,11 @@ class EditCurriculumPage(tk.Frame):
         totcred = self.totcreditstext.get()
         maxunits = self.maxunitstext.get()
 
-        if not name or not id or not headname or not totcred or not maxunits:
+        if not id or not headname or not totcred or not maxunits:
             self.errorlabel.pack()
         else:
-            array = [name, id, headname, totcred, maxunits]
-            insertcurriculum(array)
+            array = [id, headname, totcred, maxunits]
+            editcurriculum(array, name)
             updatecurriculums()
             self.backtostart(controller)
 
@@ -1549,8 +1557,12 @@ class EditCurriculumPage(tk.Frame):
             self.errorlabel.pack_forget()
         controller.show_frame(StartPage)
 
-    def updateothers(self):
-        curric = getcurriculum()
+    def updateothers(self, *args):
+        curric = getcurriculum(self.nametext.get())[0]
+        self.idvar.set(curric[1])
+        self.hnvar.set(curric[2])
+        self.crvar.set(curric[3])
+        self.muvar.set(curric[4])
 
     def validateint(self, P):
         if str.isdigit(P) or P == "":
@@ -1568,11 +1580,15 @@ class EditCurriculumPage(tk.Frame):
         else:
             return False
 
+    def updatecurrlist(self):
+        global CURRICULUMS
+        self.nametext.config(values=CURRICULUMS)
 
-class InsertCoursePage(tk.Frame):
+
+class EditCoursePage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Course Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Course Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         labelCName = tk.Label(self, text="Name")
@@ -1581,16 +1597,20 @@ class InsertCoursePage(tk.Frame):
         labelCHours = tk.Label(self, text="Credit Hours")
         labelCDesc = tk.Label(self, text="Description")
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
-
+        global COURSES
         vcmd = (self.register(self.validateint))
-        self.nametext = tk.Entry(self)
-        self.codetext = tk.Entry(self)
-        self.coursenumtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.hourstext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.covar = tk.StringVar()
+        self.crvar = tk.StringVar()
+        self.hovar = tk.StringVar()
+
+        self.nametext = ttk.Combobox(self, values=COURSES)
+        self.nametext.bind("<<ComboboxSelected>>", self.updateothers)
+        self.codetext = tk.Entry(self, textvariable=self.covar)
+        self.coursenumtext = tk.Entry(self, textvariable=self.crvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.hourstext = tk.Entry(self, textvariable=self.hovar, validate='all', validatecommand=(vcmd, '%P'))
         self.desctext = tk.Text(self)
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: self.backtostart(controller))
 
@@ -1634,6 +1654,18 @@ class InsertCoursePage(tk.Frame):
             self.errorlabel.pack_forget()
         controller.show_frame(StartPage)
 
+    def updateothers(self, *args):
+        course = getcourse(self.nametext.get())[0]
+        self.covar.set(course[1])
+        self.crvar.set(course[2])
+        self.hovar.set(course[3])
+        self.desctext.delete(1.0, 'end')
+        self.desctext.insert(tk.END, course[4])
+
+    def updatecourselist(self):
+        global COURSES
+        self.nametext.config(values=COURSES)
+
     def validateint(self, P):
         if str.isdigit(P) or P == "":
             return True
@@ -1641,10 +1673,10 @@ class InsertCoursePage(tk.Frame):
             return False
 
 
-class InsertCurriculumCoursePage(tk.Frame):
+class EditCurriculumCoursePage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Curriculum Course Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Curriculum Course Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         global CURRICULUMS
@@ -1652,7 +1684,9 @@ class InsertCurriculumCoursePage(tk.Frame):
         self.curriculumlabel = tk.Label(self, text="Curriculum")
         self.courselabel = tk.Label(self, text="Course")
         self.curriculums = ttk.Combobox(self, values=CURRICULUMS)
-        self.courses = ttk.Combobox(self, values=COURSES)
+        self.curriculums.bind("<<ComboboxSelected>>", self.updatecourse)
+        self.courses = ttk.Combobox(self)
+        self.courses.bind("<<ComboboxSelected>>", self.updateoption)
         self.var = tk.IntVar()
         self.optional = tk.Checkbutton(self, text="Optional", variable=self.var)
 
@@ -1680,7 +1714,7 @@ class InsertCurriculumCoursePage(tk.Frame):
             self.errorlabel.pack()
         else:
             array = [curric, course, optional]
-            insertcurriculumcourses(array)
+            editcurriculumcourse(array, curric, course)
             self.backtostart(controller)
 
     def backtostart(self, controller):
@@ -1690,11 +1724,33 @@ class InsertCurriculumCoursePage(tk.Frame):
         self.errorlabel.pack_forget()
         controller.show_frame(StartPage)
 
+    def updatecourse(self, *args):
+        tempcourses = getcurriculumcourses(self.curriculums.get())
+        size = len(tempcourses)
+        courses = [None] * size
+        for x in range(0, size):
+            courses[x] = tempcourses[x][0]
+        self.courses.config(values=courses)
+        self.courses.set('')
 
-class InsertCurriculumTopicPage(tk.Frame):
+    def updateoption(self, *args):
+        currcourse = getcurriculumcourse(self.curriculums.get(), self.courses.get())[0]
+        if currcourse[2] == 1:
+            self.optional.select()
+        else:
+            self.optional.deselect()
+
+    def updatecomboboxes(self):
+        global CURRICULUMS
+        global COURSES
+        self.curriculums.config(values=CURRICULUMS)
+        self.courses.config(values=COURSES)
+
+
+class EditCurriculumTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Curriculum Topic Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Curriculum Topic Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         global TOPICS
@@ -1702,20 +1758,25 @@ class InsertCurriculumTopicPage(tk.Frame):
 
         vcmd = (self.register(self.validateint))
         vcmd2 = (self.register(self.validatefloat), '%S', '%P')
+        self.lvlvar = tk.StringVar()
+        self.subvar = tk.StringVar()
+        self.univar = tk.StringVar()
         curriclabel = tk.Label(self, text="Curriculum")
         self.currictext = ttk.Combobox(self, values=CURRICULUMS)
+        self.currictext.bind("<<ComboboxSelected>>", self.updatetopics)
         topiclabel = tk.Label(self, text="Topic ID")
         self.topicidtext = ttk.Combobox(self, values=TOPICS)
+        self.topicidtext.bind("<<ComboboxSelected>>", self.updateothers)
         levellabel = tk.Label(self, text="Level")
-        self.leveltext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.leveltext = tk.Entry(self, textvariable=self.lvlvar, validate='all', validatecommand=(vcmd, '%P'))
         subjectlabel = tk.Label(self, text="Subject Area")
-        self.subjecttext = tk.Entry(self)
+        self.subjecttext = tk.Entry(self, textvariable=self.subvar)
         unitslabel = tk.Label(self, text="Units")
-        self.unitstext = tk.Entry(self, validate='all', validatecommand=vcmd2)
+        self.unitstext = tk.Entry(self, textvariable=self.univar, validate='all', validatecommand=vcmd2)
         self.errorlabel = tk.Label(self, text="One or more fields left blank", fg='red')
         self.unitserror = tk.Label(self, text="Units above max units", fg='red')
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: self.backtostart(controller))
 
@@ -1749,7 +1810,7 @@ class InsertCurriculumTopicPage(tk.Frame):
             self.unitserror.pack()
         else:
             array = [curric, topicid, level, subject, units]
-            insertcurriculumtopics(array)
+            editcurriculumtopics(array, curric, topicid)
 
             self.backtostart(controller)
 
@@ -1762,6 +1823,22 @@ class InsertCurriculumTopicPage(tk.Frame):
         self.subjecttext.delete(0, 'end')
         self.unitstext.delete(0, 'end')
         controller.show_frame(StartPage)
+
+    def updatetopics(self, *args):
+        temptopics = getcurriculumtopics(self.currictext.get())
+        size = len(temptopics)
+        topics = [None] * size
+        for x in range(0, size):
+            topics[x] = temptopics[x][0]
+        self.topicidtext.config(values=topics)
+        self.topicidtext.set('')
+
+    def updateothers(self, *args):
+        temptopic = getcurriculumtopic(self.currictext.get(), self.topicidtext.get())[0]
+        self.lvlvar.set(temptopic[2])
+        self.subvar.set(temptopic[3])
+        self.univar.set(temptopic[4])
+
 
     def validateint(self, P):
         if str.isdigit(P) or P == "":
@@ -1786,7 +1863,7 @@ class InsertCurriculumTopicPage(tk.Frame):
         self.topicidtext.set('')
 
 
-class InsertStudentGrades(tk.Frame):
+class EditStudentGrades(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
@@ -1809,6 +1886,7 @@ class InsertStudentGrades(tk.Frame):
         self.coursenamebox.bind("<<ComboboxSelected>>", self.updateyears)
         self.semesterbox.bind("<<ComboboxSelected>>", self.updatesectionids)
         self.yearentry.bind("<<ComboboxSelected>>", self.updatesemesters)
+        self.sectionidentry.bind("<<ComboboxSelected>>", self.updategrades)
 
         self.apluslabel = tk.Label(self, text="Number of A Plus")
         self.alabel = tk.Label(self, text="Number of A")
@@ -1826,25 +1904,41 @@ class InsertStudentGrades(tk.Frame):
         self.wlabel = tk.Label(self, text="Number of Withdrawal")
         self.ilabel = tk.Label(self, text="Number of I")
 
-        self.aplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.bplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.cplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.dplusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.aminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.bminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.cminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.dminusentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.aentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.bentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.centry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.dentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.fentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.wentry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
-        self.ientry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.apvar = tk.StringVar()
+        self.avar = tk.StringVar()
+        self.amvar = tk.StringVar()
+        self.bpvar = tk.StringVar()
+        self.bvar = tk.StringVar()
+        self.bmvar = tk.StringVar()
+        self.cpvar = tk.StringVar()
+        self.cvar = tk.StringVar()
+        self.cmvar = tk.StringVar()
+        self.dpvar = tk.StringVar()
+        self.dvar = tk.StringVar()
+        self.dmvar = tk.StringVar()
+        self.fvar = tk.StringVar()
+        self.wvar = tk.StringVar()
+        self.ivar = tk.StringVar()
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.aplusentry = tk.Entry(self, textvariable=self.apvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.bplusentry = tk.Entry(self, textvariable=self.bpvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.cplusentry = tk.Entry(self, textvariable=self.cpvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.dplusentry = tk.Entry(self, textvariable=self.dpvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.aminusentry = tk.Entry(self, textvariable=self.amvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.bminusentry = tk.Entry(self, textvariable=self.bmvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.cminusentry = tk.Entry(self, textvariable=self.cmvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.dminusentry = tk.Entry(self, textvariable=self.dmvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.aentry = tk.Entry(self, textvariable=self.avar, validate='all', validatecommand=(vcmd, '%P'))
+        self.bentry = tk.Entry(self, textvariable=self.bvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.centry = tk.Entry(self, textvariable=self.cvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.dentry = tk.Entry(self, textvariable=self.dvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.fentry = tk.Entry(self, textvariable=self.fvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.wentry = tk.Entry(self, textvariable=self.wvar, validate='all', validatecommand=(vcmd, '%P'))
+        self.ientry = tk.Entry(self, textvariable=self.ivar, validate='all', validatecommand=(vcmd, '%P'))
+
+        insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         button = tk.Button(self, text="Back to Start Page",
-                                command=lambda: self.backtostart(controller))
+                           command=lambda: self.backtostart(controller))
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
 
         self.coursenamelabel.pack()
@@ -1911,6 +2005,26 @@ class InsertStudentGrades(tk.Frame):
         self.sectionidentry.config(values=sectionids)
         self.sectionidentry.set('')
 
+    def updategrades(self, *args):
+        grades = getstudentgrades(self.semesterbox.get(), self.yearentry.get(), self.sectionidentry.get(),
+                                  self.coursenamebox.get())
+
+        if not grades:
+            messagebox.showerror("Exception", "Current section has no grades")
+        else:
+            self.apvar.set(grades[0][4])
+            self.avar.set(grades[0][5])
+            self.amvar.set(grades[0][6])
+            self.bpvar.set(grades[0][7])
+            self.bvar.set(grades[0][8])
+            self.bmvar.set(grades[0][9])
+            self.cpvar.set(grades[0][10])
+            self.cvar.set(grades[0][11])
+            self.cmvar.set(grades[0][12])
+            self.dpvar.set(grades[0][13])
+            self.dvar.set(grades[0][14])
+            self.dmvar.set(grades[0][15])
+
     def insertpressed(self, controller):
         semester = self.semesterbox.get()
         year = self.yearentry.get()
@@ -1941,7 +2055,7 @@ class InsertStudentGrades(tk.Frame):
         else:
             array = [semester, year, sectionid, coursename, aplus, a, aminus, bplus, b, bminus, cplus,
                      c, cminus, dplus, d, dminus, f, withdraw, i]
-            insertstudentgrades(array)
+            editstudentgrades(array, semester, year, sectionid, coursename)
 
             self.backtostart(controller)
 
@@ -1981,7 +2095,7 @@ class InsertStudentGrades(tk.Frame):
         self.coursenamebox.config(values=COURSES)
 
 
-class InsertGoalPage(tk.Frame):
+class EditGoalPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         label = tk.Label(self, text="Insert Goal Page", font=LARGE_FONT)
@@ -1991,13 +2105,12 @@ class InsertGoalPage(tk.Frame):
         labeldescription = tk.Label(self, text="Description")
         labelid = tk.Label(self, text="Goal ID")
 
-        vcmd = (self.register(self.validateint))
-
-        self.identry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.identry = ttk.Combobox(self, values=getgoals())
+        self.identry.bind("<<ComboboxSelected>>", self.updateothers)
         self.desctext = tk.Text(self)
         self.curriculumbox = ttk.Combobox(self, values=CURRICULUMS)
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: self.backtostart(controller))
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
@@ -2026,7 +2139,7 @@ class InsertGoalPage(tk.Frame):
             self.errorlabel.pack()
         else:
             array = [id, description, curr]
-            insertgoal(array)
+            editgoal(array, id)
 
             self.backtostart(controller)
 
@@ -2037,17 +2150,23 @@ class InsertGoalPage(tk.Frame):
         self.identry.delete(0, 'end')
         controller.show_frame(StartPage)
 
+    def updateothers(self, *args):
+        goal = getgoal(self.identry.get())[0]
+        self.desctext.delete(1.0, 'end')
+        self.desctext.insert(tk.END, goal[1])
+        self.curriculumbox.set(goal[2])
+
     def updatecurrlist(self):
-        global COURSES
+        global CURRICULUMS
         self.curriculumbox.pack_forget()
         self.curriculumbox = ttk.Combobox(self, values=CURRICULUMS)
         self.curriculumbox.pack()
 
 
-class InsertCourseGoalPage(tk.Frame):
+class EditCourseGoalPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Course Goal Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         global CURRICULUMS
@@ -2059,11 +2178,12 @@ class InsertCourseGoalPage(tk.Frame):
         labelid = tk.Label(self, text="Goal ID")
 
         self.curriculum = ttk.Combobox(self, values=CURRICULUMS)
-        self.curriculum.bind("<<ComboboxSelected>>", self.updateothers)
-        self.course = ttk.Combobox(self, values=COURSES)
-        self.id = ttk.Combobox(self, values=GOALS)
+        self.curriculum.bind("<<ComboboxSelected>>", self.updatecourses)
+        self.course = ttk.Combobox(self)
+        self.course.bind("<<ComboboxSelected>>", self.updategoalid)
+        self.id = ttk.Combobox(self)
 
-        insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         button = tk.Button(self, text="Back to Start Page",
                            command=lambda: controller.show_frame(StartPage))
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
@@ -2086,21 +2206,22 @@ class InsertCourseGoalPage(tk.Frame):
             self.errorlabel.pack()
         else:
             array = [curr, cour, id]
-            insertcoursegoals(array)
+            editcoursegoals(array, curr, cour)
 
             if self.errorlabel.winfo_ismapped():
                 self.errorlabel.pack_forget()
             controller.show_frame(StartPage)
 
-    def updateothers(self, *args):
-        tempcourses = getcurriculumcourses(self.curriculum.get())
+    def updatecourses(self, *args):
+        tempcourses = getcoursegoalsfromcurr(self.curriculum.get())
         size = len(tempcourses)
         courses = [None] * int(size)
         for x in range(0, size):
             courses[x] = tempcourses[x][0]
         self.course.config(values=courses)
 
-        tempids = getcurricgoals(self.curriculum.get())
+    def updategoalid(self, *args):
+        tempids = getcoursegoal(self.curriculum.get(), self.course.get())
         size = len(tempids)
         ids = [None] * int(size)
         for x in range(0, size):
@@ -2108,17 +2229,19 @@ class InsertCourseGoalPage(tk.Frame):
         self.id.config(values=ids)
 
 
-class InsertTopicPage(tk.Frame):
+class EditTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Student Grades Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         vcmd = (self.register(self.validateint))
         topiclabel = tk.Label(self, text="Topic ID")
-        self.topicidtext = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.topicidtext = ttk.Combobox(self, values=gettopics())
+        self.topicidtext.bind("<<ComboboxSelected>>", self.updatetopicname)
         topicnamelabel = tk.Label(self, text="Topic Name")
-        self.topicnametext = tk.Entry(self)
+        self.topvar = tk.StringVar()
+        self.topicnametext = tk.Entry(self, textvariable=self.topvar)
 
         insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
         button = tk.Button(self, text="Back to Start Page",
@@ -2147,7 +2270,7 @@ class InsertTopicPage(tk.Frame):
             self.errorlabel.pack()
         else:
             array = [id, name]
-            inserttopics(array)
+            edittopics(array, id)
             updatetopics()
             self.backtostart(controller)
 
@@ -2157,28 +2280,33 @@ class InsertTopicPage(tk.Frame):
 
         controller.show_frame(StartPage)
 
+    def updatetopicname(self, *args):
+        topic = gettopic(self.topicidtext.get())[0]
+        self.topvar.set(topic[1])
 
-class InsertCourseTopicsPage(tk.Frame):
+
+class EditCourseTopicsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Course Topics Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Course Topics Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        global COURSES
         self.courseLabel = tk.Label(self, text="Course")
-        self.courseBox = ttk.Combobox(self, values=COURSES)
+        self.courseBox = ttk.Combobox(self, values=getcoursetopicscourses())
+        self.courseBox.bind("<<ComboboxSelected>>", self.updatecurric)
 
-        global CURRICULUMS
         self.curriculumLabel = tk.Label(self, text="Curriculum")
-        self.curriculumBox = ttk.Combobox(self, values=CURRICULUMS)
-        self.curriculumBox.bind("<<ComboboxSelected>>", self.updateothers)
+        self.curriculumBox = ttk.Combobox(self)
+        self.curriculumBox.bind("<<ComboboxSelected>>", self.updatetopic)
 
         self.topicIDLabel = tk.Label(self, text="Topic ID")
         self.topicIDBox = ttk.Combobox(self)
+        self.topicIDBox.bind("<<ComboboxSelected>>", self.updateunits)
 
         vcmd2 = (self.register(self.validatefloat), '%S', '%P')
         self.unitsLabel = tk.Label(self, text="Units")
-        self.unitsEntry = tk.Entry(self, validate='all', validatecommand=vcmd2)
+        self.univar = tk.StringVar()
+        self.unitsEntry = tk.Entry(self, textvariable=self.univar, validate='all', validatecommand=vcmd2)
 
         self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
         self.button = tk.Button(self, text="Back to Start Page",
@@ -2221,7 +2349,7 @@ class InsertCourseTopicsPage(tk.Frame):
             self.errorlabel.pack()
         else:
             array = [course, curric, topicID, units]
-            insertcoursetopics(array)
+            editcoursetopics(array, course, curric, topicID)
             self.backtostart(controller)
 
     def backtostart(self, controller):
@@ -2230,16 +2358,17 @@ class InsertCourseTopicsPage(tk.Frame):
         self.unitsEntry.delete(0, 'end')
         controller.show_frame(StartPage)
 
-    def updateothers(self, *args):
-        tempcourses = getcurriculumcourses(self.curriculumBox.get())
-        size = len(tempcourses)
-        courses = [None] * int(size)
+    def updatecurric(self, *args):
+        tempcurrics = getcoursetopicscurric(self.courseBox.get())
+        size = len(tempcurrics)
+        currics = [None] * int(size)
         for x in range(0, size):
-            courses[x] = tempcourses[x][0]
-        self.courseBox.config(values=courses)
+            currics[x] = tempcurrics[x][0]
+        self.courseBox.config(values=currics)
         self.courseBox.set('')
 
-        tempids = getcurriculumtopics(self.curriculumBox.get())
+    def updatetopic(self, *args):
+        tempids = getcoursetopicsids(self.courseBox.get(), self.curriculumBox.get())
         size = len(tempids)
         ids = [None] * int(size)
         for x in range(0, size):
@@ -2247,31 +2376,32 @@ class InsertCourseTopicsPage(tk.Frame):
         self.topicIDBox.config(values=ids)
         self.topicIDBox.set('')
 
+    def updateunits(self, *args):
+        coursetopic = getcoursetopic(self.courseBox.get(), self.curriculumBox.get(), self.topicIDBox.get())[0]
+        self.univar.set(coursetopic[3])
 
-class InsertCourseSectionsPage(tk.Frame):
+
+class EditCourseSectionsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Course Sections Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Edit Course Sections Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         self.semesterLabel = tk.Label(self, text="Semester")
-        self.semesterBox = ttk.Combobox(self, values=["Spring", "Summer",
-                                                      "Fall", "Winter"])
+        self.semesterBox = ttk.Combobox(self)
 
         vcmd = (self.register(self.validateint))
         self.yearLabel = tk.Label(self, text="Year")
-        self.yearEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
+        self.yearEntry = ttk.Combobox(self)
 
         self.limitvalue = tk.StringVar()
         self.limitvalue.trace('w', self.limitsize)
         self.sectionIDLabel = tk.Label(self, text="Section ID")
-        self.sectionIDEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'),
-                                       textvariable=self.limitvalue)
+        self.sectionIDEntry = ttk.Combobox(self)
 
         global COURSE
         self.courseLabel = tk.Label(self, text="Course")
-        self.courseBox = ttk.Combobox(self, values=COURSES)
+        self.courseBox = ttk.Combobox(self, values=getcoursesectioncourses())
 
         self.enrolledLabel = tk.Label(self, text="Enrolled")
         self.enrolledEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
@@ -2282,7 +2412,7 @@ class InsertCourseSectionsPage(tk.Frame):
         self.comTwoLabel = tk.Label(self, text="Comment 2")
         self.comTwoEntry = tk.Entry(self)
 
-        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         self.button = tk.Button(self, text="Back to Start Page",
                                 command=lambda: self.backtostart(controller))
 
@@ -2378,7 +2508,7 @@ class InsertGoalGrades(tk.Frame):
         self.goalGradeLabel = tk.Label(self, text="Goal Grade")
         self.goalGradeEntry = tk.Entry(self, validate='all', validatecommand=(vcmd, '%P'))
 
-        self.insert = tk.Button(self, text="Insert", command=lambda: self.insertpressed(controller))
+        self.insert = tk.Button(self, text="Update", command=lambda: self.insertpressed(controller))
         self.button = tk.Button(self, text="Back to Start Page",
                                 command=lambda: self.backtostart(controller))
 
@@ -2480,6 +2610,22 @@ class StartPage(tk.Frame):
                              controller.show_frame(InsertCourseSectionsPage))
         button16 = tk.Button(self, text="Insert Goal Grades", command=lambda:
                              controller.show_frame(InsertGoalGrades))
+        button17 = tk.Button(self, text="Edit Curriculum", command=lambda:
+                             controller.show_frame(EditCurriculumPage))
+        button18 = tk.Button(self, text="Edit Course", command=lambda:
+                             controller.show_frame(EditCoursePage))
+        button19 = tk.Button(self, text="Edit Curriculum Course", command=lambda:
+                             controller.show_frame(EditCurriculumCoursePage))
+        button20 = tk.Button(self, text="Edit Curriculum Topic", command=lambda:
+                             controller.show_frame(EditCurriculumTopicPage))
+        button21 = tk.Button(self, text="Edit Student Grades", command=lambda:
+                             controller.show_frame(EditStudentGrades))
+        button22 = tk.Button(self, text="Edit Goal", command=lambda:
+                             controller.show_frame(EditGoalPage))
+        button23 = tk.Button(self, text="Edit Course Goal", command=lambda:
+                             controller.show_frame(EditGoalPage))
+        button24 = tk.Button(self, text="Edit Course Topics", command=lambda:
+                             controller.show_frame(EditCourseTopicsPage))
 
         button1.pack()
         button2.pack()
@@ -2496,3 +2642,12 @@ class StartPage(tk.Frame):
         button13.pack()
         button14.pack()
         button15.pack()
+        button16.pack()
+        button17.pack()
+        button18.pack()
+        button19.pack()
+        button20.pack()
+        button21.pack()
+        button22.pack()
+        button23.pack()
+        button24.pack()

@@ -9,6 +9,14 @@ mycursor = ""
 results = ""
 
 
+def getcoursegoalsfromcurr(curr):
+    global mycursor
+    query = "select courseName from coursegoals where curriculumName = '" + curr + "'"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
 def getgoals():
     global mycursor
     query = "select id from goal"
@@ -254,12 +262,12 @@ def editcurriculum(array, currname):
     global mydb
 
     query = "update curriculum.curriculum set headID='" + array[0] + "', " \
-            "headName='" + array[1] + "', totCredits='" + array[2] + "', maxUnits='" + array[3] + "', " \
-            "coverage='" + array[4] + "', numGoals='" + array[5] + "' where (name='" + currname + "')"
+            "headName='" + array[1] + "', totCredits='" + array[2] + "', maxUnits='" + array[3] +\
+            "' where (name='" + currname + "')"
 
     # Execute edit and commit
     mycursor.execute(query)
-    mydb.commit(query)
+    mydb.commit()
 
 
 def getcurriculumhead(curriculum):
@@ -400,6 +408,14 @@ def gettopic(topicid):
     return mycursor.fetchall()
 
 
+def gettopics():
+    global mycursor
+    query = "select id from topics"
+
+    mycursor.execute(query)
+    return mycursor.fetchall()
+
+
 def getcurriculumtopics(curr):
     global mycursor
     query = "select topicID from curriculumtopics where curriculumName = '" + curr + "'"
@@ -465,10 +481,10 @@ def insertgoal(array):
 
 
 # Function to get goal
-def getgoal(goalid, curr):
+def getgoal(goalid):
     # Define variables
     global mycursor
-    query = "select * from goal where id='" + goalid + "' and curriculum='" + curr + "'"
+    query = "select * from goal where id='" + goalid + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -663,10 +679,45 @@ def insertcoursetopics(array):
 
 
 # Function to get Course/Topics
-def getcoursetopics(coursename):
+def getcoursetopic(coursename, curricname, topicid):
     # Define variables
     global mycursor
-    query = "select topicID from coursetopics where courseName = '" + "'"
+    query = "select units from coursetopics where courseName = '" + coursename + "' and curriculumName = '" + \
+            curricname + "' and topicID = '" + topicid + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+def getcoursetopicscourses():
+    global mycursor
+    query = "select courseName from coursetopics"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+def getcoursetopicscurric(coursename):
+    global mycursor
+    query = "select curriculumName from coursetopics where courseName = '" + coursename + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+def getcoursetopicsids(coursename, curricname):
+    global mycursor
+    query = "select topicID from coursetopics where courseName = '" + coursename + "' and curriculumName = '" + \
+            curricname + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -723,6 +774,19 @@ def getcoursegoals(courseName):
     # Define variables
     global mycursor
     query = "select goalID from coursegoals where courseName = '" + courseName + "'"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
+def getcoursegoal(currName, courseName):
+    # Define variables
+    global mycursor
+    query = "select goalID from coursegoals where curriculumName = '" + currName +\
+            "' and courseName = '" + courseName + "'"
 
     # Execute query
     mycursor.execute(query)
@@ -905,6 +969,17 @@ def getcoursesection(semester, year, secid, courseName):
     return mycursor.fetchall()
 
 
+def getcoursesectioncourses():
+    global mycursor
+    query = "select courseName from coursesections"
+
+    # Execute query
+    mycursor.execute(query)
+
+    # Return result set
+    return mycursor.fetchall()
+
+
 def getcoursesectionyears(course):
     global mycursor
     query = "select year from coursesections where courseName = '" + course + "' group by year"
@@ -1004,16 +1079,17 @@ def initdatabase():
                      "primary key (name))")
 
     mycursor.execute("create table IF NOT EXISTS topics (id int not null, name varchar(25), "
-                     "constraint topics_pk primary key (id))")
+                     "primary key (id))")
 
     mycursor.execute("create table IF NOT EXISTS curriculumTopics (curriculumName varchar(25) not null, topicID int "
                      "not null, level int, subjectArea varchar(25), units float, "
                      "primary key (curriculumName, topicID), foreign key (curriculumName) "
-                     "references curriculum (name), foreign key (topicID) references topics (id))")
+                     "references curriculum (name) on update cascade, foreign key (topicID) references topics (id) "
+                     "on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS goal (id int not null, description text, curriculum varchar(25) "
                      "not null, primary key (id, curriculum),"
-                     "foreign key (curriculum) references curriculum (name))")
+                     "foreign key (curriculum) references curriculum (name) on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, "
                      "subCode varchar(25) not null, courseNumber int not null, creditHours int, description text, "
@@ -1022,27 +1098,26 @@ def initdatabase():
     mycursor.execute("create table IF NOT EXISTS courseTopics (courseName varchar(25) not null,"
                      " curriculumName varchar(25) not null, topicID int not null, units float,"
                      "primary key (courseName, curriculumName, topicID), foreign key (curriculumName, topicID) "
-                     "references curriculumtopics (curriculumName, topicID),"
-                     "foreign key (courseName) references course (name))")
+                     "references curriculumtopics (curriculumName, topicID) on update cascade,"
+                     "foreign key (courseName) references course (name) on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS curriculumCourses (curriculumName varchar(25) not null,"
                      "courseName varchar(25) not null, optional bool,"
                      "primary key (curriculumName, courseName),"
-                     "foreign key (curriculumName) references curriculum (name),"
-                     "foreign key (courseName) references course(name))")
+                     "foreign key (curriculumName) references curriculum (name) on update cascade,"
+                     "foreign key (courseName) references course(name) on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS courseGoals (curriculumName varchar(25) not null, "
                      "courseName varchar(25) not null, goalID int not null, "
                      "primary key (curriculumName, courseName, goalID),"
                      "foreign key (curriculumName, courseName) "
-                     "references curriculumcourses (curriculumName, courseName),"
-                     "foreign key (goalID) references goal (id))")
+                     "references curriculumcourses (curriculumName, courseName) on update cascade,"
+                     "foreign key (goalID) references goal (id) on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS courseSections (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, "
-                     "enrolled int, comment1 text, comment2 text, constraint courseSections_pk primary key "
-                     "(semester, year, sectionID, courseName),"
-                     "foreign key (courseName) references course (name))")
+                     "enrolled int, comment1 text, comment2 text, primary key (semester, year, sectionID, courseName),"
+                     "foreign key (courseName) references course (name) on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS studentGrades (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, numAP int, "
@@ -1050,11 +1125,11 @@ def initdatabase():
                      "numD int, numDM int, numF int, numW int, numI int,"
                      "primary key (semester, year, sectionID, courseName),"
                      "foreign key (semester, year, sectionID, courseName) "
-                     "references coursesections (semester, year, sectionID, courseName))")
+                     "references coursesections (semester, year, sectionID, courseName) on update cascade)")
 
     mycursor.execute("create table IF NOT EXISTS goalGrades (semester varchar(25) not null, year year not null, "
                      "sectionID int not null, courseName varchar(25) not null, goalID int "
                      "not null, goalGrade varchar(25), constraint goalGrades_pk primary key "
                      "(semester, year, sectionID, courseName, goalID),"
                      "foreign key (semester, year, sectionID, courseName) "
-                     "references coursesections (semester, year, sectionID, courseName))")
+                     "references coursesections (semester, year, sectionID, courseName) on update cascade)")
