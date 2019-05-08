@@ -977,7 +977,12 @@ def getcoursesectioncourses():
     mycursor.execute(query)
 
     # Return result set
-    return mycursor.fetchall()
+    courses = mycursor.fetchall()
+
+    for x in range(0, len(courses)):
+        courses[x] = courses[x][0]
+
+    return courses
 
 
 def getcoursesectionyears(course):
