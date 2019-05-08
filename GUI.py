@@ -58,7 +58,8 @@ class DatabaseGUI(tk.Tk):
                   SearchCourseByCurriculumPage, CurriculumSemesterRangeSearch,
                   CurriculumDashboardPage, InsertCurriculumPage, InsertCoursePage,
                   InsertTopicPage, InsertStudentGrades, InsertGoalPage,
-                  InsertCurriculumCoursePage, InsertCourseGoalPage):
+                  InsertCurriculumCoursePage, InsertCourseGoalPage, InsertGoalGrades,
+                  InsertCourseSectionsPage, InsertCourseTopicsPage):
             frame = F(container, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
@@ -1144,6 +1145,12 @@ class StartPage(tk.Frame):
                              controller.show_frame(InsertGoalPage))
         button11 = tk.Button(self, text="Insert Course Goal", command=lambda:
                              controller.show_frame(InsertCourseGoalPage))
+        button12 = tk.Button(self, text="Insert Course Topic", command=lambda:
+                             controller.show_frame(InsertCourseTopicsPage))
+        button13 = tk.Button(self, text="Insert Course Section", command=lambda:
+                             controller.show_frame(InsertCourseSectionsPage))
+        button14 = tk.Button(self, text="Insert Goal Grades", command=lambda:
+                             controller.show_frame(InsertGoalGrades))
 
         button1.pack()
         button2.pack()
@@ -1156,12 +1163,11 @@ class StartPage(tk.Frame):
         button9.pack()
         button10.pack()
         button11.pack()
-        
-        
-        
-        
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+        button12.pack()
+        button13.pack()
+        button14.pack()
+
+
 class InsertCourseTopicsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -1214,7 +1220,21 @@ class InsertCourseTopicsPage(tk.Frame):
                 return False
         else:
             return False
-        
+
+    def updateothers(self, *args):
+        tempcourses = getcurriculumcourses(self.curriculum.get())
+        size = len(tempcourses)
+        courses = [None] * int(size)
+        for x in range(0, size):
+            courses[x] = tempcourses[x][0]
+        self.course.config(values=courses)
+
+        tempids = getcurricgoals(self.curriculum.get())
+        size = len(tempids)
+        ids = [None] * int(size)
+        for x in range(0, size):
+            ids[x] = tempids[x][0]
+        self.id.config(values=ids)
 
     
 class InsertCourseSectionsPage(tk.Frame):
@@ -1281,6 +1301,10 @@ class InsertCourseSectionsPage(tk.Frame):
         else:
             return False
 
+    def limitsize(self, *args):
+        value = self.limitvalue.get()
+        if len(value) > 3:
+            self.limitvalue.set(value[:3])
 
 
 class InsertGoalGrades(tk.Frame):
@@ -1339,13 +1363,8 @@ class InsertGoalGrades(tk.Frame):
         self.insert.pack(side=tk.BOTTOM)
         self.button.pack(side=tk.BOTTOM)
 
-
     def validateint(self, P):
         if str.isdigit(P) or P == "":
             return True
         else:
             return False
-
-
-                                         
-
