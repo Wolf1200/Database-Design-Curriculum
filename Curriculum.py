@@ -733,7 +733,7 @@ def initdatabase():
                      "not null, primary key (id, curriculum),"
                      "foreign key (curriculum) references curriculum (name))")
 
-    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, subCode varchar(25) not null, "
+    mycursor.execute("create table IF NOT EXISTS course (name varchar(75) not null unique, subCode varchar(25) not null, "
                      "courseNumber int not null, creditHours int, description text, constraint course_pk "
                      "primary key (name, subCode, courseNumber))")
 
