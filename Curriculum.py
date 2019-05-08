@@ -324,9 +324,14 @@ def insertcourse(array):
     # Insert tuple
     query = "insert into course (name, subCode, courseNumber, creditHours, description) values (%s, %s, %s, %s, %s)"
 
-    # Execute query and commit to db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get course
@@ -372,8 +377,14 @@ def inserttopics(array):
 
     query = "insert into topics (id, name) values (%s, %s)"
 
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get topic
@@ -443,9 +454,14 @@ def insertgoal(array):
     # Create query to execute
     query = "insert into goal (id, description, curriculum) values (%s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get goal
@@ -523,9 +539,14 @@ def insertgoalgrade(array):
     query = "insert into goalgrades (semester, year, sectionID, subCode, courseNumber, goalID, goalGrade) values " \
             "(%s, %s, %s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get goal/grade
@@ -575,9 +596,14 @@ def insertcurriculumtopics(array):
     query = "insert into curriculumtopics (curriculumName, topicID, level, subjectArea, units) values " \
             "(%s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Curriculum/Topics
@@ -626,9 +652,14 @@ def insertcoursetopics(array):
     query = "insert into coursetopics (courseName, curriculumName, topicID, units) values " \
             "(%s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Course/Topics
@@ -678,9 +709,14 @@ def insertcoursegoals(array):
     # Define query to insert
     query = "insert into coursegoals (curriculumName, courseName, goalID) values (%s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Course/Goals
@@ -730,9 +766,14 @@ def insertcurriculumcourses(array):
     query = "insert into curriculumcourses (curriculumName, courseName, optional) " \
             "values (%s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Curriculum/Course
@@ -783,9 +824,14 @@ def insertstudentgrades(array):
             " numB, numBM, numCP, numC, numCM, numDP, numD, numDM, numF, numW, numI) values " \
             "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get StudentGrades
@@ -837,9 +883,14 @@ def insertcoursesections(array):
     query = "insert into coursesections (semester, year, sectionID, courseName) values " \
             "(%s, %s, %s, %s)"
 
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get Course/Sections
