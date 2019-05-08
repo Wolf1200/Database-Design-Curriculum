@@ -1,4 +1,7 @@
 import mysql.connector
+import tkinter as tk
+from tkinter import messagebox
+from mysql.connector import errorcode
 
 # Global variables
 mydb = ""
@@ -219,13 +222,16 @@ def insertcurriculum(array):
     # Define variables
     global mydb
     global mycursor
-
     query = "insert into curriculum (name, headID, headName, totCredits, maxUnits) values " \
             "(%s, %s, %s, %s, %s)"
-
-    # Execute query and commit db
-    mycursor.execute(query, array)
-    mydb.commit()
+    try:
+        # Execute query and commit db
+        mycursor.execute(query, array)
+        mydb.commit()
+    except mysql.connector.Error as err:
+        print(err.errno)
+        if err.errno == 1062:
+            messagebox.showerror("Error", "Duplicate Entry")
 
 
 # Function to get curriculum
@@ -893,18 +899,18 @@ def getallcoursestopics(currname):
 def initdatabase():
     # Open DB connection
     global mydb
-    mydb = mysql.connector.connect(user='testUser', password='SicEmBears', host='127.0.0.1', database='Curriculum')
+    mydb = mysql.connector.connect(user='testUser', password='SicEmBears', host='127.0.0.1')
     global mycursor
     mycursor = mydb.cursor()
 
-    # mycursor.execute("CREATE DATABASE IF NOT EXISTS Curriculum")
+    mycursor.execute("CREATE DATABASE IF NOT EXISTS Curriculum")
 
     # mycursor.execute("CREATE USER IF NOT EXISTS testUser@localhost IDENTIFIED BY 'SicEmBears';")
     # mycursor.execute("use curriculum")
     # mycursor.execute("GRANT all on curriculum.* to testUser@localhost")
 
-    # mydb = mysql.connector.connect(user='testUser', password='SicEmBears',
-                                   # host='127.0.0.1', database='Curriculum')
+    mydb = mysql.connector.connect(user='testUser', password='SicEmBears',
+                                   host='127.0.0.1', database='Curriculum')
 
     mycursor = mydb.cursor()
 
@@ -925,9 +931,9 @@ def initdatabase():
                      "not null, primary key (id, curriculum),"
                      "foreign key (curriculum) references curriculum (name))")
 
-    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, subCode varchar(25) not null, "
-                     "courseNumber int not null, creditHours int, description text, constraint course_pk "
-                     "primary key (name, subCode, courseNumber))")
+    mycursor.execute("create table IF NOT EXISTS course (name varchar(25) not null unique, "
+                     "subCode varchar(25) not null, courseNumber int not null, creditHours int, description text, "
+                     "primary key (name), unique key (subCode, courseNumber))")
 
     mycursor.execute("create table IF NOT EXISTS courseTopics (courseName varchar(25) not null,"
                      " curriculumName varchar(25) not null, topicID int not null, units float,"

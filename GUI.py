@@ -127,17 +127,10 @@ class InsertCurriculumPage(tk.Frame):
         if not name or not id or not headname or not totcred or not maxunits:
             self.errorlabel.pack()
         else:
-            self.nametext.delete(0, 'end')
-            self.headidtext.delete(0, 'end')
-            self.headname.delete(0, 'end')
-            self.totcreditstext.delete(0, 'end')
-            self.maxunitstext.delete(0, 'end')
             array = [name, id, headname, totcred, maxunits]
             insertcurriculum(array)
-            if self.errorlabel.winfo_ismapped():
-                self.errorlabel.pack_forget()
             updatecurriculums()
-            controller.show_frame(StartPage)
+            self.backtostart(controller)
 
     def backtostart(self, controller):
         self.nametext.delete(0, 'end')
@@ -458,15 +451,10 @@ class InsertCoursePage(tk.Frame):
         if not name or not code or not coursenum or not hours or not desc:
             self.errorlabel.pack()
         else:
-            self.nametext.delete(0, 'end')
-            self.codetext.delete(0, 'end')
-            self.coursenumtext.delete(0, 'end')
-            self.hourstext.delete(0, 'end')
-            self.desctext.delete('1.0', 'end')
             array = [name, code, coursenum, hours, desc]
             insertcourse(array)
             updatecourses()
-            controller.show_frame(StartPage)
+            self.backtostart(controller)
 
     def backtostart(self, controller):
         self.nametext.delete(0, 'end')
@@ -777,21 +765,13 @@ class InsertTopicPage(tk.Frame):
                 self.curricerror.pack_forget()
             self.unitserror.pack()
         else:
-            self.currictext.delete(0, 'end')
-            self.topicidtext.delete(0, 'end')
-            self.leveltext.delete(0, 'end')
-            self.subjecttext.delete(0, 'end')
-            self.unitstext.delete(0, 'end')
-
             topic = [topicid, topicname]
             inserttopics(topic)
 
             array = [curric, topicid, topicname, level, subject, units]
             insertcurriculumtopics(array)
 
-            if self.errorlabel.winfo_ismapped():
-                self.errorlabel.pack_forget()
-            controller.show_frame(StartPage)
+            self.backtostart(controller)
 
     def backtostart(self, controller):
         if self.curricerror.winfo_ismapped():
@@ -913,26 +893,7 @@ class InsertStudentGrades(tk.Frame):
                      c, cminus, dplus, d, dminus, f, withdraw, i]
             insertstudentgrades(array)
 
-            self.yearentry.delete(0, 'end')
-            self.sectionidentry.delete(0, 'end')
-            self.coursenamebox.delete(0, 'end')
-            self.aplusentry.delete(0, 'end')
-            self.aentry.delete(0, 'end')
-            self.aminusentry.delete(0, 'end')
-            self.bplusentry.delete(0, 'end')
-            self.bentry.delete(0, 'end')
-            self.bminusentry.delete(0, 'end')
-            self.cplusentry.delete(0, 'end')
-            self.centry.delete(0, 'end')
-            self.cminusentry.delete(0, 'end')
-            self.dplusentry.delete(0, 'end')
-            self.dentry.delete(0, 'end')
-            self.dminusentry.delete(0, 'end')
-            self.fentry.delete(0, 'end')
-            self.wentry.delete(0, 'end')
-            self.ientry.delete(0, 'end')
-
-            controller.show_frame(StartPage)
+            self.backtostart(controller)
 
     def backtostart(self, controller):
         self.yearentry.delete(0, 'end')
@@ -1019,11 +980,7 @@ class InsertGoalPage(tk.Frame):
             array = [id, description, curr]
             insertgoal(array)
 
-            self.desctext.delete(1.0, 'end')
-            self.identry.delete(0, 'end')
-            if self.errorlabel.winfo_ismapped():
-                self.errorlabel.pack_forget()
-            controller.show_frame(StartPage)
+            self.backtostart(controller)
 
     def backtostart(self, controller):
         if self.errorlabel.winfo_ismapped():
@@ -1221,20 +1178,41 @@ class InsertCourseTopicsPage(tk.Frame):
         else:
             return False
 
+    def insertpressed(self, controller):
+        curric = self.curriculumBox.get()
+        course = self.courseBox.get()
+        topicID = self.topicIDBox.get()
+        units = self.unitsEntry.get()
+
+        if not curric or not course or not topicID or not units:
+            self.errorlabel.pack()
+        else:
+            array = [course, curric, topicID, units]
+            insertcoursetopics(array)
+            self.backtostart(controller)
+
+    def backtostart(self, controller):
+        self.curriculumBox.set('')
+        self.topicIDBox.set('')
+        self.unitsEntry.delete(0, 'end')
+        controller.show_frame(StartPage)
+
     def updateothers(self, *args):
-        tempcourses = getcurriculumcourses(self.curriculum.get())
+        tempcourses = getcurriculumcourses(self.curriculumBox.get())
         size = len(tempcourses)
         courses = [None] * int(size)
         for x in range(0, size):
             courses[x] = tempcourses[x][0]
-        self.course.config(values=courses)
+        self.courseBox.config(values=courses)
+        self.courseBox.set('')
 
-        tempids = getcurricgoals(self.curriculum.get())
+        tempids = getcurriculumtopics(self.curriculumBox.get())
         size = len(tempids)
         ids = [None] * int(size)
         for x in range(0, size):
             ids[x] = tempids[x][0]
-        self.id.config(values=ids)
+        self.topicIDBox.config(values=ids)
+        self.topicIDBox.set('')
 
     
 class InsertCourseSectionsPage(tk.Frame):
@@ -1305,6 +1283,29 @@ class InsertCourseSectionsPage(tk.Frame):
         value = self.limitvalue.get()
         if len(value) > 3:
             self.limitvalue.set(value[:3])
+
+    def insertpressed(self, controller):
+        semester = self.semesterBox.get()
+        year = self.yearEntry.get()
+        enrolled = self.enrolledEntry.get()
+        comment1 = self.comOneEntry.get()
+        comment2 = self.comTwoEntry.get()
+
+        if not semester or not year or not enrolled or not comment1 or not comment2:
+            self.errorlabel.pack()
+        else:
+            array = [semester, year, enrolled, comment1, comment2]
+            insertcoursesections(array)
+            self.backtostart(controller)
+
+    def backtostart(self, controller):
+        self.errorlabel.pack_forget()
+        self.semesterBox.set('')
+        self.yearEntry.delete(0, 'end')
+        self.enrolledEntry.delete(0, 'end')
+        self.comOneEntry.delete(0, 'end')
+        self.comTwoEntry.delete(0, 'end')
+        controller.show_frame(StartPage)
 
 
 class InsertGoalGrades(tk.Frame):
