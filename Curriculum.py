@@ -253,9 +253,9 @@ def editcurriculum(array, currname):
     global mycursor
     global mydb
 
-    query = "update curriculum.curriculum set name='" + array[0] + "', headID='" + array[1] + "', " \
-            "headName='" + array[2] + "', totCredits='" + array[3] + "', maxUnits='" + array[4] + "', " \
-            "coverage='" + array[5] + "', numGoals='" + array[6] + "' where (name='" + currname + "')"
+    query = "update curriculum.curriculum set headID='" + array[0] + "', " \
+            "headName='" + array[1] + "', totCredits='" + array[2] + "', maxUnits='" + array[3] + "', " \
+            "coverage='" + array[4] + "', numGoals='" + array[5] + "' where (name='" + currname + "')"
 
     # Execute edit and commit
     mycursor.execute(query)
