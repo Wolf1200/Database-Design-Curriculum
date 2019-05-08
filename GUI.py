@@ -712,7 +712,7 @@ class InsertCourseGoalPage(tk.Frame):
 class InsertTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Insert Topic Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         vcmd = (self.register(self.validateint))
@@ -2047,7 +2047,7 @@ class InsertGoalPage(tk.Frame):
 class InsertCourseGoalPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Insert Course Goal Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         global CURRICULUMS
@@ -2111,7 +2111,7 @@ class InsertCourseGoalPage(tk.Frame):
 class InsertTopicPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Insert Student Grades Page", font=LARGE_FONT)
+        label = tk.Label(self, text="Insert Topic Page", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
         vcmd = (self.register(self.validateint))
