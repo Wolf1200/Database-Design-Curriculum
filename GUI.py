@@ -464,6 +464,7 @@ class InsertStudentGrades(tk.Frame):
         button = tk.Button(self, text="Back to Start Page",
                                 command=lambda: self.backtostart(controller))
         self.errorlabel = tk.Label(self, text="One or more fields were left blank", fg='red')
+        self.enrollederror = tk.Label(self, text="Too may grades given, exceeds enrolled", fg='red')
 
         self.coursenamelabel.pack()
         self.coursenamebox.pack()
@@ -549,6 +550,7 @@ class InsertStudentGrades(tk.Frame):
         f = self.fentry.get()
         withdraw = self.wentry.get()
         i = self.ientry.get()
+        actenrolled = getcoursesectionenrolled(coursename, year, semester, sectionid)
         enrolled = (int(aplus) + int(a) + int(aminus) + int(bplus) + int(b) + int(bminus) + int(cplus) + int(c) +
                     int(cminus) + int(dplus) + int(d) + int(dminus) + int(f) + int(withdraw) + int(i))
 
@@ -556,6 +558,9 @@ class InsertStudentGrades(tk.Frame):
                 or not aminus or not bplus or not b or not bminus or not cplus or not c or not cminus
                 or not dplus or not d or not dminus or not f or not withdraw or not i):
             self.errorlabel.pack()
+        elif enrolled > actenrolled:
+            self.errorlabel.pack_forget()
+            self.enrollederror.pack()
         else:
             array = [semester, year, sectionid, coursename, aplus, a, aminus, bplus, b, bminus, cplus,
                      c, cminus, dplus, d, dminus, f, withdraw, i]
@@ -580,6 +585,8 @@ class InsertStudentGrades(tk.Frame):
         self.fentry.delete(0, 'end')
         self.wentry.delete(0, 'end')
         self.ientry.delete(0, 'end')
+        self.errorlabel.pack_forget()
+        self.enrollederror.pack_forget()
 
         controller.show_frame(StartPage)
 
